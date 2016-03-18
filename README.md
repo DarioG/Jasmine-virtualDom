@@ -19,8 +19,7 @@ A tool to create a virtual dom to use in your specs
     });
 
     afterEach(function () {
-        jasmine.virtualDom.uninstall(body);
+        jasmine.virtualDom.uninstall();
     });
 ```
-
 3. use the dom API as usual

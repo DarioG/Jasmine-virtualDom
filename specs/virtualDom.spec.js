@@ -28,7 +28,7 @@ describe('VirtualDom', function () {
         });
 
         afterEach(function () {
-            jasmine.virtualDom.uninstall(body);
+            jasmine.virtualDom.uninstall();
         });
 
         it('should add the html passed in', function () {
