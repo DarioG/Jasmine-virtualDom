@@ -1,3 +1,9 @@
+/**
+* Wrapper on top of the Document object model javascript API,
+*   to make our life easier when we need to interact with such API in our tests
+*
+* @constructor VirtualDom
+*/
 window.getJasmineRequireObj().VirtualDom = function () {
     var oldDocument,
 
@@ -26,6 +32,12 @@ window.getJasmineRequireObj().VirtualDom = function () {
         return !!oldDocument;
     };
 
+    /**
+    * This method will override the document API to use the virtual one, instead of the real one.
+    *
+    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
+    * @memberof VirtualDom
+    */
     this.install = function (body) {
         var dom ;
 
@@ -62,6 +74,9 @@ window.getJasmineRequireObj().VirtualDom = function () {
         };
     };
 
+    /**
+    * @memberof VirtualDom
+    */
     this.uninstall = function () {
         var method;
 

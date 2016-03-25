@@ -45,9 +45,7 @@ module.exports = function (grunt) {
                 'specs/**/*.js'
             ],
             options: {
-                config: 'jscsRules.json',
-                reporter: 'junit',
-                reporterOutput: 'log/jscs.xml'
+                config: 'jscsRules.json'
             }
         },
 

@@ -63,7 +63,7 @@
     "disallowKeywordsOnNewLine": [
         "else"
     ],
-    "requireLineFeedAtFileEnd": true,
+    "requireLineFeedAtFileEnd": false,
     "requireCapitalizedConstructors": true,
     "requireDotNotation": true,
     "disallowNewlineBeforeBlockStatements": true,

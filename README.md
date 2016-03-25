@@ -61,6 +61,11 @@ The install method has an optional parameter, called body, which is expected to 
     });
 ```   
 
+##Generate docs
+
+    1. npm install
+    2. grunt doc
+
 
 
 
