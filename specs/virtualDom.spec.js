@@ -1,9 +1,18 @@
 describe('VirtualDom', function () {
 
-    var realDom;
+    var realDom,
+        oldAPI;
 
     beforeEach(function () {
         realDom = document.getElementsByTagName('html')[0];
+
+        oldAPI = {
+            getElementsByTagName: document.getElementsByTagName,
+            getElementById: document.getElementById,
+            getElementsByClassName: document.getElementsByClassName,
+            querySelector: document.querySelector,
+            querySelectorAll: document.querySelectorAll
+        };
     });
 
     it('should be defined', function () {
@@ -138,6 +147,12 @@ describe('VirtualDom', function () {
 
                 expect(html.innerHTML).not.toEqual(body);
                 expect(html).toBe(realDom);
+
+                expect(oldAPI.getElementById).toBe(document.getElementById);
+                expect(oldAPI.getElementsByTagName).toBe(document.getElementsByTagName);
+                expect(oldAPI.getElementsByClassName).toBe(document.getElementsByClassName);
+                expect(oldAPI.querySelector).toBe(document.querySelector);
+                expect(oldAPI.querySelectorAll).toBe(document.querySelectorAll);
             });
         });
     });

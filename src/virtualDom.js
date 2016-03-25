@@ -51,6 +51,8 @@ window.getJasmineRequireObj().VirtualDom = function () {
         oldDocument = {
             getElementsByTagName: document.getElementsByTagName,
             getElementById: document.getElementById,
+            querySelector: document.querySelector,
+            querySelectorAll: document.querySelectorAll,
             getElementsByClassName: document.getElementsByClassName
         };
 
