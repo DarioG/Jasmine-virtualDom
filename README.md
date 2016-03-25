@@ -23,3 +23,46 @@ A tool to create a virtual dom to use in your specs
     });
 ```
 3. use the dom API as usual
+
+####Examples
+    
+##### Installing
+
+The install method has an optional parameter, called body, which is expected to be the initial html state.
+
+
+```javascript
+    beforeEach(function () {
+        jasmine.virtualDom.install('<head></head><body>' +
+            '<div id="myContainer" class="container">Hi!</div>' +
+            '<div class="container">Hi2!</div>' +
+            '<div id="selector">' +
+                '<div class="child">Yeeeeepa</div>' +
+                '<div class="child">Yeeeeepa2</div>' +
+            '</div>' +
+        '</body>');
+    });
+
+    afterEach(function () {
+        jasmine.virtualDom.uninstall();
+    });
+
+
+    it('Adding a new element into the html', function () {
+        /// production code
+        var newEl = document.createElement('div');
+        newEl.innerText = 'This is a new element';
+        newEl.id = 'newEl';
+
+        document.getElementById('selector').appendChild(newEl);
+        ///
+
+        expect(document.getElementById('newEl')).toBeDefined();
+    });
+```   
+
+
+
+
+
+
