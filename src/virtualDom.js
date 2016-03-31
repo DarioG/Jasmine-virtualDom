@@ -30,6 +30,16 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
     isAlreadyInstalled = function () {
         return !!oldDocument;
+    },
+
+    mergeConfigIntoEventObject = function (eventObj, config) {
+        var prop;
+
+        for (prop in config) {
+            if (config.hasOwnProperty(prop)) {
+                eventObj[prop] = config[prop];
+            }
+        }
     };
 
     /**
@@ -95,10 +105,13 @@ window.getJasmineRequireObj().VirtualDom = function () {
     * Trigger any kind of event from any element, native or custom events
     * @param {Object} element. Dom Element
     * @param {String} event. Event name
+    * @param {Object} config. parameters to be added to the event object
     * @memberof VirtualDom
     */
-    this.trigger = function (element, event) {
+    this.trigger = function (element, event, config) {
         var eventObject = new Event(event);
+
+        mergeConfigIntoEventObject.call(this, eventObject, config);
 
         element.dispatchEvent(eventObject);
     };

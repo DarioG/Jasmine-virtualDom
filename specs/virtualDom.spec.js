@@ -189,6 +189,30 @@ describe('VirtualDom', function () {
 
                 expect(customCallback).toHaveBeenCalled();
             });
+
+            describe('when passing in some config', function () {
+
+                it('should add it to the event object', function () {
+                    var config,
+                        container = document.getElementById('myContainer'),
+                        callback = function (e) {
+                            config = e;
+                        };
+
+                    container.addEventListener('click', callback);
+                    jasmine.virtualDom.trigger(container, 'click', {
+                        config1: 'config1',
+                        config2: 'config2',
+                        config3: 'config3',
+                        config4: 'config4'
+                    });
+
+                    expect(config.config1).toEqual('config1');
+                    expect(config.config2).toEqual('config2');
+                    expect(config.config3).toEqual('config3');
+                    expect(config.config4).toEqual('config4');
+                });
+            });
         });
     });
 });
