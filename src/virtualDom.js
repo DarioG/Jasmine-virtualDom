@@ -90,6 +90,18 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
         oldDocument = null;
     };
+
+    /**
+    * Trigger any kind of event from any element, native or custom events
+    * @param {Object} element. Dom Element
+    * @param {String} event. Event name
+    * @memberof VirtualDom
+    */
+    this.trigger = function (element, event) {
+        var eventObject = new Event(event);
+
+        element.dispatchEvent(eventObject);
+    };
 };
 
 (function () {

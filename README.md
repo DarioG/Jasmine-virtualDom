@@ -9,7 +9,7 @@ A tool to create a virtual dom to use in your specs
     <script src="../libraries/jasmine-2.3.4/jasmine.js"></script>
     <script src="../libraries/jasmine-2.3.4/jasmine-html.js"></script>
     <script src="../libraries/jasmine-2.3.4/boot.js"></script>
-    <script src="../src/virtualDom.js"></script>
+    <script src="../libraries/jasmineVD-1.0.1/virtualDom.js"></script>
 ```
 2. install the virtual dom inside of beforeEach or it ( dont forget to uninstall it in the afterEach)
 
@@ -66,6 +66,9 @@ The install method has an optional parameter, called body, which is expected to 
     1. npm install
     2. grunt doc
 
+##Support
+
+Chrome, Safari, FF, IE > 8.
 
 
 

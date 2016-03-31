@@ -155,5 +155,40 @@ describe('VirtualDom', function () {
                 expect(oldAPI.querySelectorAll).toBe(document.querySelectorAll);
             });
         });
+
+        describe('trigger(element, event)', function () {
+
+            it('should trigger all the event listeners', function () {
+                var container = document.getElementById('myContainer'),
+                    clickCallback = jasmine.createSpy(),
+                    clickCallback2 = jasmine.createSpy(),
+                    blurCallback = jasmine.createSpy(),
+                    customCallback = jasmine.createSpy(),
+                    focus = jasmine.createSpy();
+
+                container.addEventListener('click', clickCallback);
+                container.addEventListener('click', clickCallback2);
+                container.addEventListener('blur', blurCallback);
+                container.addEventListener('focus', focus);
+                container.addEventListener('custom', customCallback);
+
+                jasmine.virtualDom.trigger(container, 'click');
+
+                expect(clickCallback).toHaveBeenCalled();
+                expect(clickCallback2).toHaveBeenCalled();
+
+                jasmine.virtualDom.trigger(container, 'blur');
+
+                expect(blurCallback).toHaveBeenCalled();
+
+                jasmine.virtualDom.trigger(container, 'focus');
+
+                expect(focus).toHaveBeenCalled();
+
+                jasmine.virtualDom.trigger(container, 'custom');
+
+                expect(customCallback).toHaveBeenCalled();
+            });
+        });
     });
 });
