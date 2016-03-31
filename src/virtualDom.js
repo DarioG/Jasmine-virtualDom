@@ -84,6 +84,20 @@ window.getJasmineRequireObj().VirtualDom = function () {
         document.querySelectorAll = function (selector) {
             return dom.querySelectorAll(selector);
         };
+
+        Object.defineProperty(document, 'body', {
+            get: function () {
+                return this.getElementsByTagName('body')[0];
+            },
+            configurable: true
+        });
+
+        Object.defineProperty(document, 'head', {
+            get: function () {
+                return this.getElementsByTagName('head')[0];
+            },
+            configurable: true
+        });
     };
 
     /**
