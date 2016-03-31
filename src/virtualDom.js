@@ -115,6 +115,16 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
         element.dispatchEvent(eventObject);
     };
+
+    /**
+    * Uninstall and install the virtual dom with a new html
+    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
+    * @memberof VirtualDom
+    */
+    this.resetDom = function (body) {
+        this.uninstall();
+        this.install(body);
+    };
 };
 
 (function () {

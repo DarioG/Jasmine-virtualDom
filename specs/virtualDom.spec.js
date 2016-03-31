@@ -214,5 +214,28 @@ describe('VirtualDom', function () {
                 });
             });
         });
+
+        describe('resetDom(body)', function () {
+
+            it('should clean the previous dom', function () {
+                var container;
+
+                jasmine.virtualDom.resetDom();
+                container = document.getElementById('myContainer');
+
+                expect(container).not.toBeDefined();
+            });
+
+            it('should add the new html', function () {
+                var container;
+
+                jasmine.virtualDom.resetDom('<head></head><body>' +
+                    '<div id="myNewContainer" class="container">Hi!</div>' +
+                '</body>');
+                container = document.getElementById('myNewContainer');
+
+                expect(container).toBeDefined();
+            });
+        });
     });
 });
