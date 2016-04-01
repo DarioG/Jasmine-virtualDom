@@ -26,10 +26,11 @@ A tool to create a virtual dom to use in your specs
 
 ####Examples
     
+Here you have a summary, if you want more details, generate the docs.
+
 ##### Installing
 
 The install method has an optional parameter, called body, which is expected to be the initial html state.
-
 
 ```javascript
     beforeEach(function () {
@@ -59,7 +60,33 @@ The install method has an optional parameter, called body, which is expected to 
 
         expect(document.getElementById('newEl')).toBeDefined();
     });
-```   
+```  
+##### Triggering events
+
+You can trigger native or custom events of any element in the dom
+
+```javascript
+    it('triggering events', function () {
+        var callback = jasmine.createSpy();
+
+        /// production code
+        var el = document.getElementById('selector');
+
+        el.addEventListener('click', callback);
+        ///
+
+        expect(callback).toHaveBeenCalled();
+    });
+```  
+
+##### Reseting the virtual dom
+
+Sometimes you need to reset the dom with a new template. You can do this, uninstalling and installing again, but there is a method which does that
+
+```javascript
+    jasmine.virtualDom.resetDom(newHTMLTemplateHere);
+```  
+
 
 ##Generate docs
 
