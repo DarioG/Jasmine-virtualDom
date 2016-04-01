@@ -75,6 +75,9 @@ You can trigger native or custom events of any element in the dom
         el.addEventListener('click', callback);
         ///
 
+        jasmine.virtualDom.trigger(el, 'click', {
+            property: 'this property will be added to the event object'
+        });
         expect(callback).toHaveBeenCalled();
     });
 ```  
