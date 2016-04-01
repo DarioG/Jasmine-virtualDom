@@ -123,7 +123,8 @@ window.getJasmineRequireObj().VirtualDom = function () {
     * @memberof VirtualDom
     */
     this.trigger = function (element, event, config) {
-        var eventObject = new Event(event);
+        var eventObject = document.createEvent('Event');
+        event.initEvent(event, true, true);
 
         mergeConfigIntoEventObject.call(this, eventObject, config);
 
