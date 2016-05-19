@@ -56,7 +56,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
         }
 
         dom = document.createElement('html');
-        dom.innerHTML = body;
+        dom.innerHTML = body ? body : '';
 
         oldDocument = {
             getElementsByTagName: document.getElementsByTagName,
@@ -124,7 +124,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
     */
     this.trigger = function (element, event, config) {
         var eventObject = document.createEvent('Event');
-        event.initEvent(event, true, true);
+        eventObject.initEvent(event, true, true);
 
         mergeConfigIntoEventObject.call(this, eventObject, config);
 
