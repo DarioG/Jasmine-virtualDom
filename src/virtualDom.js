@@ -128,7 +128,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
         mergeConfigIntoEventObject.call(this, eventObject, config);
 
-        element.dispatchEvent(eventObject);
+        return element.dispatchEvent(eventObject);
     };
 
     /**

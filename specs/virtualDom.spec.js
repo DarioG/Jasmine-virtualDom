@@ -229,6 +229,36 @@ describe('VirtualDom', function () {
                     expect(customCallback).toHaveBeenCalled();
                 });
 
+                describe('when at least one of the listeners is preventDefault', function () {
+
+                    it('should return false', function () {
+                        var container = document.getElementById('myContainer'),
+                            result;
+
+                        container.addEventListener('custom', function (e) {
+                            e.preventDefault();
+                        });
+
+                        result = jasmine.virtualDom.trigger(container, 'custom');
+
+                        expect(result).toBe(false);
+                    });
+                });
+
+                describe('otherwise', function () {
+
+                    it('should return true', function () {
+                        var container = document.getElementById('myContainer'),
+                            result;
+
+                        container.addEventListener('custom', function () {});
+
+                        result = jasmine.virtualDom.trigger(container, 'custom');
+
+                        expect(result).toBe(true);
+                    });
+                });
+
                 describe('when passing in some config', function () {
 
                     it('should add it to the event object', function () {
