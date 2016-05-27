@@ -92,7 +92,7 @@ Sometimes you need to reset the dom with a new template. You can do this, uninst
 
 #### Special cases
 
-Sometimes you have a event listener whose defualt behaviour needs to be prevented ( pevent redirections or submits for instance). You, obviously, need to test this. 
+Sometimes you have a event listener whose default behaviour needs to be prevented ( preventing redirections or submits for instance). You, obviously, need to test this. 
 
 For this when calling 
 
