@@ -259,6 +259,32 @@ describe('VirtualDom', function () {
                     });
                 });
 
+                it('should disable real behaviour of elements', function () {
+                    var link,
+                        event = document.createEvent('Event');
+
+                    jasmine.virtualDom.resetDom('<a id="link" href="" />');
+
+                    spyOn(document, 'createEvent').and.returnValue(event);
+
+                    link = document.getElementById('link');
+
+                    // we need to avoid that the page reload while writing the test
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                    });
+                    //
+
+                    jasmine.virtualDom.trigger(link, 'click');
+
+                    // this method is spied in the trigger method
+                    expect(event.preventDefault.calls.count()).toBe(2);
+
+                    // To check that the temporary event listener is removed
+                    link.dispatchEvent(event);
+                    expect(event.preventDefault.calls.count()).toBe(3);
+                });
+
                 describe('when passing in some config', function () {
 
                     it('should add it to the event object', function () {

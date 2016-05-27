@@ -40,6 +40,12 @@ window.getJasmineRequireObj().VirtualDom = function () {
                 eventObj[prop] = config[prop];
             }
         }
+    },
+
+    onEventTriggered = function (e) {
+        e.preventDefault();
+
+        e.target.removeEventListener(e.type, onEventTriggered);
     };
 
     /**
@@ -125,10 +131,14 @@ window.getJasmineRequireObj().VirtualDom = function () {
     this.trigger = function (element, event, config) {
         var eventObject = document.createEvent('Event');
         eventObject.initEvent(event, true, true);
+        spyOn(eventObject, 'preventDefault').and.callThrough();
+        element.addEventListener(event, onEventTriggered);
 
         mergeConfigIntoEventObject.call(this, eventObject, config);
 
-        return element.dispatchEvent(eventObject);
+        element.dispatchEvent(eventObject);
+
+        return eventObject.preventDefault.calls.count() === 1;
     };
 
     /**
