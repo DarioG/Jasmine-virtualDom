@@ -90,6 +90,36 @@ Sometimes you need to reset the dom with a new template. You can do this, uninst
     jasmine.virtualDom.resetDom(newHTMLTemplateHere);
 ```  
 
+#### Speciall cases
+
+Sometimes you have a event listener and you need to prevent the default behaviour of this event, for example, you have a link and you need to capture this click event and stop the redirection. You, obviously, need to test this. For this when calling 
+
+```javascript
+jasmine.virtualDom.trigger(el, event);
+```
+this will return a boolean, so when it is false means that the default behaviour was stopped, true otherwise
+
+#####Examples
+
+```javascript
+element.addEventListener('click', function (e) {
+    e.preventDefault();
+});
+
+var result = jasmine.virtualDom.trigger(element, 'click');
+
+result === false // This assertion is true
+```
+
+```javascript
+element.addEventListener('click', function (e) {
+    // do something else
+});
+
+var result = jasmine.virtualDom.trigger(element, 'click');
+
+result === true // This assertion is true
+```
 
 ##Generate docs
 
