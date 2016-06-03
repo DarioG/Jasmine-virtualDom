@@ -6,15 +6,32 @@ describe('VirtualDom', function () {
     beforeEach(function () {
         realDom = document.getElementsByTagName('html')[0];
 
+        // so we have a value to test against to
+        // Object.defineProperty(document, 'cookie', {
+        //     get: function () {
+        //         return 'This is the original cookie';
+        //     },
+        //     configurable: true,
+        //     enumerable: true
+        // });
+        document.__defineGetter__('cookie', function () {
+            return 'This is the original cookie';
+        });
+
         oldAPI = {
             getElementsByTagName: document.getElementsByTagName,
             getElementById: document.getElementById,
             getElementsByClassName: document.getElementsByClassName,
             querySelector: document.querySelector,
-            querySelectorAll: document.querySelectorAll//,
+            querySelectorAll: document.querySelectorAll,
+            cookie: document.cookie
             // body: document.body,
             // head: document.head
         };
+    });
+
+    afterEach(function () {
+        document.cookie = oldAPI.cookie;
     });
 
     it('should be defined', function () {
@@ -155,6 +172,22 @@ describe('VirtualDom', function () {
                 });
             });
 
+            describe('reading the cookies', function () {
+
+                it('should be mocked', function () {
+                    expect(document.cookie).toBe('');
+                });
+            });
+
+            describe('writting into the cookie', function () {
+
+                it('should add the written value', function () {
+                    debugger;
+                    document.cookie = 'this is my super cookie';
+
+                    expect(document.cookie).toBe('this is my super cookie');
+                });
+            });
             // describe('document.body', function () {
 
             //     it('should return the virtual body', function () {
@@ -172,6 +205,7 @@ describe('VirtualDom', function () {
             //         expect(headTag).toBe(document.head);
             //     });
             // });
+            //
 
             describe('uninstalling', function () {
 
@@ -190,7 +224,8 @@ describe('VirtualDom', function () {
                     expect(oldAPI.getElementsByClassName).toBe(document.getElementsByClassName);
                     expect(oldAPI.querySelector).toBe(document.querySelector);
                     expect(oldAPI.querySelectorAll).toBe(document.querySelectorAll);
-                    // expect(oldAPI.body).toBe(document.body);
+                    expect(oldAPI.querySelectorAll).toBe(document.querySelectorAll);
+                    expect(oldAPI.cookie).toBe(document.cookie);
                     // expect(oldAPI.head).toBe(document.head);
                 });
             });

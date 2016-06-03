@@ -46,6 +46,56 @@ window.getJasmineRequireObj().VirtualDom = function () {
         e.preventDefault();
 
         e.target.removeEventListener(e.type, onEventTriggered);
+    },
+
+    forEach = function (obj, callback, scope) {
+        var prop;
+
+        for (prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                callback.call(scope, obj[prop], prop);
+            }
+        }
+    },
+
+    mockProperty = function (prop) {
+        var value = '';
+
+        // Object.defineProperty(document, prop, {
+        //     get: function () {
+        //         return value;
+        //     },
+        //     set: function (val) {
+        //         value = val;
+        //     },
+        //     configurable: true
+        // });
+
+        document.__defineGetter__(prop, function () {
+            return value;
+        });
+
+        window.document.__defineSetter__(prop, function (val) {
+            value = val;
+        });
+    },
+
+    restoreRealDom = function (old) {
+        forEach.call(this, old.methods, function (value, key) {
+            document[key] = value;
+        }, this);
+
+
+        forEach.call(this, old.properties, function (value, key) {
+            // Object.defineProperty(document, key, {
+            //     get: function () {
+            //         return value;
+            //     }
+            // });
+            document.__defineGetter__(key, function () {
+                return value;
+            });
+        }, this);
     };
 
     /**
@@ -65,11 +115,16 @@ window.getJasmineRequireObj().VirtualDom = function () {
         dom.innerHTML = body ? body : '';
 
         oldDocument = {
-            getElementsByTagName: document.getElementsByTagName,
-            getElementById: document.getElementById,
-            querySelector: document.querySelector,
-            querySelectorAll: document.querySelectorAll,
-            getElementsByClassName: document.getElementsByClassName
+            methods: {
+                getElementsByTagName: document.getElementsByTagName,
+                getElementById: document.getElementById,
+                querySelector: document.querySelector,
+                querySelectorAll: document.querySelectorAll,
+                getElementsByClassName: document.getElementsByClassName
+            },
+            properties: {
+                cookie: document.cookie
+            }
         };
 
         document.getElementsByTagName = function (tagName) {
@@ -90,6 +145,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
         document.querySelectorAll = function (selector) {
             return dom.querySelectorAll(selector);
         };
+        mockProperty.call(this, 'cookie');
 
         // Object.defineProperty(document, 'body', {
         //     get: function () {
@@ -110,12 +166,8 @@ window.getJasmineRequireObj().VirtualDom = function () {
     * @memberof VirtualDom
     */
     this.uninstall = function () {
-        var method;
-
-        for (method in oldDocument) {
-            if (oldDocument.hasOwnProperty(method)) {
-                document[method] = oldDocument[method];
-            }
+        if (oldDocument) {
+            restoreRealDom.call(this, oldDocument);
         }
 
         oldDocument = null;
