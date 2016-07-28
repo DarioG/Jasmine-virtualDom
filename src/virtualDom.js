@@ -129,8 +129,10 @@ window.getJasmineRequireObj().VirtualDom = function () {
     * @memberof VirtualDom
     */
     this.trigger = function (element, event, config) {
-        var eventObject = document.createEvent('Event');
-        eventObject.initEvent(event, true, true);
+        var eventObject = new Event(event, {
+            bubbles: true,
+            cancelable: true
+        });
         spyOn(eventObject, 'preventDefault').and.callThrough();
         element.addEventListener(event, onEventTriggered);
 

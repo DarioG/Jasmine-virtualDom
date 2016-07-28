@@ -229,6 +229,18 @@ describe('VirtualDom', function () {
                     expect(customCallback).toHaveBeenCalled();
                 });
 
+                xit('should work with event delegation', function () {
+                    var container = document.getElementById('selector'),
+                        child = document.getElementsByClassName('child')[0],
+                        clickCallback = jasmine.createSpy();
+
+                    container.addEventListener('click', clickCallback);
+
+                    jasmine.virtualDom.trigger(child, 'click');
+
+                    expect(clickCallback).toHaveBeenCalled();
+                });
+
                 describe('when at least one of the listeners is preventDefault', function () {
 
                     it('should return false', function () {
@@ -261,11 +273,14 @@ describe('VirtualDom', function () {
 
                 it('should disable real behaviour of elements', function () {
                     var link,
-                        event = document.createEvent('Event');
+                        event = new Event('click', {
+                            bubbles: true,
+                            cancelable: true
+                        });
 
                     jasmine.virtualDom.resetDom('<a id="link" href="" />');
 
-                    spyOn(document, 'createEvent').and.returnValue(event);
+                    spyOn(window, 'Event').and.returnValue(event);
 
                     link = document.getElementById('link');
 
