@@ -56,6 +56,14 @@ window.getJasmineRequireObj().VirtualDom = function () {
         }
     },
 
+    getSingleElement = function (el) {
+        if (el) {
+            return spyElement.call(this, el);
+        }
+        
+        return null;
+    },
+
     isAlreadyInstalled = function () {
         return !!oldDocument;
     },
@@ -97,31 +105,21 @@ window.getJasmineRequireObj().VirtualDom = function () {
         return element.parentElement !== null && element.parentElement !== undefined;
     },
 
-    buble = function (element, eventObject) {
+    callListeners = function (element, eventObject) {
         var i;
-        
+
         if (element.events && element.events[eventObject.type]) {
             for (i = 0; i < element.events[eventObject.type].length; i++) {
                 element.events[eventObject.type][i].call(element, eventObject);
             }
-        }
-        
-        if (shouldEventBubble.call(this, element)) {
-            buble.call(this, element.parentElement, eventObject);
         }
     },
 
     dispatchEvent = function (element, eventObject) {
-        var i;
-
-        if (element.events && element.events[eventObject.type]) {
-            for (i = 0; i < element.events[eventObject.type].length; i++) {
-                element.events[eventObject.type][i].call(element, eventObject);
-            }
-        }
+        callListeners.call(this, element, eventObject);
 
         if (shouldEventBubble.call(this, element)) {
-            buble.call(this, element.parentElement, eventObject);
+            dispatchEvent.call(this, element.parentElement, eventObject);
         }
     };
 
@@ -155,19 +153,14 @@ window.getJasmineRequireObj().VirtualDom = function () {
             }
             return spyElements.call(this, dom.getElementsByTagName(tagName));
         };
-        document.getElementById = function (id) {
-            var el = getElementById.call(this, dom, id);
-            if (el) {
-                return spyElement.call(this, el);
-            }
-            
-            return null;
+        document.getElementById = function (id) {          
+            return getSingleElement.call(this, getElementById.call(this, dom, id));
         };
         document.getElementsByClassName = function (className) {
             return spyElements.call(this, dom.getElementsByClassName(className));
         };
         document.querySelector = function (selector) {
-            return spyElement.call(this, dom.querySelector(selector));
+            return getSingleElement.call(this, dom.querySelector(selector));
         };
         document.querySelectorAll = function (selector) {
             return spyElements.call(this, dom.querySelectorAll(selector));

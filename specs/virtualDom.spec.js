@@ -137,6 +137,15 @@ describe('VirtualDom', function () {
                         expect(div.tagName).toBe('DIV');
                     });
                 });
+
+                describe('otherwise', function () {
+
+                    it('should return null', function () {
+                        var div = document.querySelector('#selector .nochild');
+
+                        expect(div).toBe(null);
+                    });
+                });
             });
 
             describe('querySelectorAll', function () {
@@ -217,7 +226,7 @@ describe('VirtualDom', function () {
                     jasmine.virtualDom.trigger(htmlEl, 'click');
 
                     expect(htmlCallback).toHaveBeenCalled();
-                    
+
                     jasmine.virtualDom.trigger(container, 'click');
 
                     expect(clickCallback).toHaveBeenCalled();
