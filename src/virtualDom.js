@@ -60,7 +60,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
         if (el) {
             return spyElement.call(this, el);
         }
-        
+
         return null;
     },
 
@@ -82,9 +82,11 @@ window.getJasmineRequireObj().VirtualDom = function () {
         var result = {},
             property;
 
+        /* jshint forin: false */
         for (property in target) {
             result[property] = target[property];
         }
+        /* jshint forin: true */
 
         for (property in source) {
             if (source.hasOwnProperty(property)) {
@@ -153,7 +155,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
             }
             return spyElements.call(this, dom.getElementsByTagName(tagName));
         };
-        document.getElementById = function (id) {          
+        document.getElementById = function (id) {
             return getSingleElement.call(this, getElementById.call(this, dom, id));
         };
         document.getElementsByClassName = function (className) {
