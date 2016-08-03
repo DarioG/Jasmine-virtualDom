@@ -47,7 +47,7 @@ describe('VirtualDom', function () {
                     '<div id="myContainer" class="container">Hi!</div>' +
                     '<div class="container">Hi2!</div>' +
                     '<div id="selector">' +
-                        '<div class="child">Yeeeeepa</div>' +
+                        '<div id="child1" class="child">Yeeeeepa</div>' +
                         '<div class="child">Yeeeeepa2</div>' +
                     '</div>' +
                 '</body>';
@@ -198,19 +198,26 @@ describe('VirtualDom', function () {
             describe('trigger(element, event)', function () {
 
                 it('should trigger all the event listeners', function () {
-                    var container = document.getElementById('myContainer'),
+                    var htmlEl = document.getElementsByTagName('html')[0],
+                        container = document.getElementById('myContainer'),
+                        htmlCallback = jasmine.createSpy(),
                         clickCallback = jasmine.createSpy(),
                         clickCallback2 = jasmine.createSpy(),
                         blurCallback = jasmine.createSpy(),
                         customCallback = jasmine.createSpy(),
                         focus = jasmine.createSpy();
 
+                    htmlEl.addEventListener('click', htmlCallback);
                     container.addEventListener('click', clickCallback);
                     container.addEventListener('click', clickCallback2);
                     container.addEventListener('blur', blurCallback);
                     container.addEventListener('focus', focus);
                     container.addEventListener('custom', customCallback);
 
+                    jasmine.virtualDom.trigger(htmlEl, 'click');
+
+                    expect(htmlCallback).toHaveBeenCalled();
+                    
                     jasmine.virtualDom.trigger(container, 'click');
 
                     expect(clickCallback).toHaveBeenCalled();
@@ -229,16 +236,18 @@ describe('VirtualDom', function () {
                     expect(customCallback).toHaveBeenCalled();
                 });
 
-                xit('should work with event delegation', function () {
+                it('should work with event delegation', function () {
                     var container = document.getElementById('selector'),
                         child = document.getElementsByClassName('child')[0],
-                        clickCallback = jasmine.createSpy();
+                        clickedEl,
+                        clickCallback =  function (e) {
+                            clickedEl = e.target;
+                        };
 
                     container.addEventListener('click', clickCallback);
-
                     jasmine.virtualDom.trigger(child, 'click');
 
-                    expect(clickCallback).toHaveBeenCalled();
+                    expect(clickedEl.id).toBe(child.id);
                 });
 
                 describe('when at least one of the listeners is preventDefault', function () {
@@ -333,7 +342,7 @@ describe('VirtualDom', function () {
                     jasmine.virtualDom.resetDom();
                     container = document.getElementById('myContainer');
 
-                    expect(container).not.toBeDefined();
+                    expect(container).toBeNull();
                 });
 
                 it('should add the new html', function () {

@@ -7,6 +7,34 @@
 window.getJasmineRequireObj().VirtualDom = function () {
     var oldDocument,
 
+    spyElement = function (el) {
+        var original = el.addEventListener;
+        el.events = {};
+        spyOn(el, 'addEventListener').and.callFake(function (name, listener) {
+            if (this.events[name]) {
+                this.events[name].push(listener);
+            } else {
+                this.events[name] = [listener];
+            }
+
+            original.call(this, name, listener);
+        });
+
+        return el;
+    },
+
+    spyElements = function (elements) {
+        var i,
+            result = [],
+            length = elements.length;
+
+        for (i = 0; i < length; i++) {
+            result.push(spyElement.call(this, elements[i]));
+        }
+
+        return result;
+    },
+
     getElementById = function (parent, id) {
         var children = parent.childNodes,
             child,
@@ -42,10 +70,59 @@ window.getJasmineRequireObj().VirtualDom = function () {
         }
     },
 
+    merge = function (target, source) {
+        var result = {},
+            property;
+
+        for (property in target) {
+            result[property] = target[property];
+        }
+
+        for (property in source) {
+            if (source.hasOwnProperty(property)) {
+                result[property] = source[property];
+            }
+        }
+
+        return result;
+    },
+
     onEventTriggered = function (e) {
         e.preventDefault();
 
         e.target.removeEventListener(e.type, onEventTriggered);
+    },
+
+    shouldEventBubble = function (element) {
+        return element.parentElement !== null && element.parentElement !== undefined;
+    },
+
+    buble = function (element, eventObject) {
+        var i;
+        
+        if (element.events && element.events[eventObject.type]) {
+            for (i = 0; i < element.events[eventObject.type].length; i++) {
+                element.events[eventObject.type][i].call(element, eventObject);
+            }
+        }
+        
+        if (shouldEventBubble.call(this, element)) {
+            buble.call(this, element.parentElement, eventObject);
+        }
+    },
+
+    dispatchEvent = function (element, eventObject) {
+        var i;
+
+        if (element.events && element.events[eventObject.type]) {
+            for (i = 0; i < element.events[eventObject.type].length; i++) {
+                element.events[eventObject.type][i].call(element, eventObject);
+            }
+        }
+
+        if (shouldEventBubble.call(this, element)) {
+            buble.call(this, element.parentElement, eventObject);
+        }
     };
 
     /**
@@ -74,21 +151,26 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
         document.getElementsByTagName = function (tagName) {
             if (tagName.toLowerCase() === 'html') {
-                return [dom];
+                return spyElements.call(this, [dom]);
             }
-            return dom.getElementsByTagName(tagName);
+            return spyElements.call(this, dom.getElementsByTagName(tagName));
         };
         document.getElementById = function (id) {
-            return getElementById.call(this, dom, id);
+            var el = getElementById.call(this, dom, id);
+            if (el) {
+                return spyElement.call(this, el);
+            }
+            
+            return null;
         };
         document.getElementsByClassName = function (className) {
-            return dom.getElementsByClassName(className);
+            return spyElements.call(this, dom.getElementsByClassName(className));
         };
         document.querySelector = function (selector) {
-            return dom.querySelector(selector);
+            return spyElement.call(this, dom.querySelector(selector));
         };
         document.querySelectorAll = function (selector) {
-            return dom.querySelectorAll(selector);
+            return spyElements.call(this, dom.querySelectorAll(selector));
         };
 
         // Object.defineProperty(document, 'body', {
@@ -132,13 +214,19 @@ window.getJasmineRequireObj().VirtualDom = function () {
         var eventObject = new Event(event, {
             bubbles: true,
             cancelable: true
+        }),
+        preventBackup = eventObject.preventDefault;
+
+        spyOn(eventObject, 'preventDefault').and.callFake(function () {
+            preventBackup.call(eventObject);
         });
-        spyOn(eventObject, 'preventDefault').and.callThrough();
         element.addEventListener(event, onEventTriggered);
 
         mergeConfigIntoEventObject.call(this, eventObject, config);
 
-        element.dispatchEvent(eventObject);
+        dispatchEvent.call(this, element, merge.call(this, eventObject, {
+            target: element
+        }));
 
         return eventObject.preventDefault.calls.count() === 1;
     };

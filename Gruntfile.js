@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                 options: {
                     specs: ['specs/**/*.js'],
                     keepRunner : false,
-                    display : 'short',
+                    display : 'full',
                     summary : true,
                     junit: {
                         path: 'log/jasmine'
