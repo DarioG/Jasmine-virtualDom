@@ -8,31 +8,33 @@ window.getJasmineRequireObj().VirtualDom = function () {
     var oldDocument,
 
     spyElement = function (el) {
-        var original = el.addEventListener;
-        el.events = {};
-        spyOn(el, 'addEventListener').and.callFake(function (name, listener) {
-            if (this.events[name]) {
-                this.events[name].push(listener);
-            } else {
-                this.events[name] = [listener];
-            }
+        var original;
+        if (!el.events) {
+            original = el.addEventListener;
+            el.events = {};
+            el.addEventListener = function (name, listener) {
+                if (this.events[name]) {
+                    this.events[name].push(listener);
+                } else {
+                    this.events[name] = [listener];
+                }
 
-            original.call(this, name, listener);
-        });
+                original.call(this, name, listener);
+            };
+        }
 
         return el;
     },
 
     spyElements = function (elements) {
         var i,
-            result = [],
             length = elements.length;
 
         for (i = 0; i < length; i++) {
-            result.push(spyElement.call(this, elements[i]));
+            spyElement.call(this, elements[i]);
         }
 
-        return result;
+        return elements;
     },
 
     getElementById = function (parent, id) {
@@ -132,7 +134,9 @@ window.getJasmineRequireObj().VirtualDom = function () {
     * @memberof VirtualDom
     */
     this.install = function (body) {
-        var dom ;
+        var dom,
+            me = this,
+            docCreateElementBackup;
 
         if (isAlreadyInstalled.call(this)) {
             throw 'Virtual dom already installed';
@@ -146,26 +150,28 @@ window.getJasmineRequireObj().VirtualDom = function () {
             getElementById: document.getElementById,
             querySelector: document.querySelector,
             querySelectorAll: document.querySelectorAll,
-            getElementsByClassName: document.getElementsByClassName
+            getElementsByClassName: document.getElementsByClassName,
+            addEventListener: document.addEventListener
         };
 
         document.getElementsByTagName = function (tagName) {
             if (tagName.toLowerCase() === 'html') {
-                return spyElements.call(this, [dom]);
+                // This array could lead to problems
+                return spyElements.call(me, [dom]);
             }
-            return spyElements.call(this, dom.getElementsByTagName(tagName));
+            return spyElements.call(me, dom.getElementsByTagName(tagName));
         };
         document.getElementById = function (id) {
-            return getSingleElement.call(this, getElementById.call(this, dom, id));
+            return getSingleElement.call(me, getElementById.call(me, dom, id));
         };
         document.getElementsByClassName = function (className) {
-            return spyElements.call(this, dom.getElementsByClassName(className));
+            return spyElements.call(me, dom.getElementsByClassName(className));
         };
         document.querySelector = function (selector) {
-            return getSingleElement.call(this, dom.querySelector(selector));
+            return getSingleElement.call(me, dom.querySelector(selector));
         };
         document.querySelectorAll = function (selector) {
-            return spyElements.call(this, dom.querySelectorAll(selector));
+            return spyElements.call(me, dom.querySelectorAll(selector));
         };
 
         // Object.defineProperty(document, 'body', {
@@ -181,6 +187,18 @@ window.getJasmineRequireObj().VirtualDom = function () {
         //     },
         //     configurable: true
         // });
+
+        docCreateElementBackup = document.createElement;
+        document.createElement = function () {
+            if (!oldDocument) {
+                this.createElement = docCreateElementBackup;
+                return this.createElement.apply(this, arguments);
+            } else {
+                return spyElement.call(me, docCreateElementBackup.apply(this, arguments));
+            }
+        };
+
+        spyElement.call(this, document);
     };
 
     /**
@@ -195,6 +213,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
             }
         }
 
+        delete document.events;
         oldDocument = null;
     };
 
