@@ -128,25 +128,11 @@ window.getJasmineRequireObj().VirtualDom = function () {
         return merge.call(this, eventCopy, {
             target: element
         });
-    };
+    },
 
-    /**
-    * This method will override the document API to use the virtual one, instead of the real one.
-    *
-    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
-    * @memberof VirtualDom
-    */
-    this.install = function (body) {
-        var dom,
-            me = this,
-            docCreateElementBackup;
-
-        if (isAlreadyInstalled.call(this)) {
-            throw 'Virtual dom already installed';
-        }
-
-        dom = document.createElement('html');
-        dom.innerHTML = body ? body : '';
+    prepareDocument = function (dom) {
+        var me = this,
+            docCreateElementBackup = document.createElement;
 
         oldDocument = {
             getElementsByTagName: document.getElementsByTagName,
@@ -155,6 +141,15 @@ window.getJasmineRequireObj().VirtualDom = function () {
             querySelectorAll: document.querySelectorAll,
             getElementsByClassName: document.getElementsByClassName,
             addEventListener: document.addEventListener
+        };
+
+        document.createElement = function () {
+            if (!oldDocument) {
+                this.createElement = docCreateElementBackup;
+                return this.createElement.apply(this, arguments);
+            } else {
+                return spyElement.call(me, docCreateElementBackup.apply(this, arguments));
+            }
         };
 
         document.getElementsByTagName = function (tagName) {
@@ -191,17 +186,26 @@ window.getJasmineRequireObj().VirtualDom = function () {
         //     configurable: true
         // });
 
-        docCreateElementBackup = document.createElement;
-        document.createElement = function () {
-            if (!oldDocument) {
-                this.createElement = docCreateElementBackup;
-                return this.createElement.apply(this, arguments);
-            } else {
-                return spyElement.call(me, docCreateElementBackup.apply(this, arguments));
-            }
-        };
-
         spyElement.call(this, document);
+    };
+
+    /**
+    * This method will override the document API to use the virtual one, instead of the real one.
+    *
+    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
+    * @memberof VirtualDom
+    */
+    this.install = function (body) {
+        var dom;
+
+        if (isAlreadyInstalled.call(this)) {
+            throw 'Virtual dom already installed';
+        }
+
+        dom = document.createElement('html');
+        dom.innerHTML = body ? body : '';
+
+        prepareDocument.call(this, dom);
     };
 
     /**
