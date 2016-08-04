@@ -126,7 +126,9 @@ window.getJasmineRequireObj().VirtualDom = function () {
         var eventCopy = merge.call(this, copyObjectFrom.call(this, eventObject), config);
 
         return merge.call(this, eventCopy, {
-            target: element
+            target: element,
+            srcElement: element,
+            toElement: element
         });
     },
 

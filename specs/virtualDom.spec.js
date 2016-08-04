@@ -308,18 +308,18 @@ describe('VirtualDom', function () {
                 it('should work with event delegation', function () {
                     var container = document.getElementById('selector'),
                         child = document.getElementsByClassName('child')[0],
-                        clickedEl,
-                        elementWithEventAttached,
+                        event,
                         clickCallback =  function (e) {
-                            clickedEl = e.target;
-                            elementWithEventAttached = e.currentTarget;
+                            event = e;
                         };
 
                     container.addEventListener('click', clickCallback);
                     jasmine.virtualDom.trigger(child, 'click');
 
-                    expect(clickedEl.id).toBe(child.id);
-                    expect(elementWithEventAttached).toBe(container);
+                    expect(event.target.id).toBe(child.id);
+                    expect(event.srcElement.id).toBe(child.id);
+                    expect(event.toElement.id).toBe(child.id);
+                    expect(event.currentTarget).toBe(container);
                 });
 
                 describe('when at least one of the listeners is preventDefault', function () {
