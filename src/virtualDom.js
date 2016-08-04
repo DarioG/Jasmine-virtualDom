@@ -114,7 +114,9 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
         if (element.events && element.events[eventObject.type]) {
             for (i = 0; i < element.events[eventObject.type].length; i++) {
-                element.events[eventObject.type][i].call(element, eventObject);
+                element.events[eventObject.type][i].call(element, merge.call(this, eventObject, {
+                    currentTarget: element
+                }));
             }
         }
     },

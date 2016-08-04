@@ -309,14 +309,17 @@ describe('VirtualDom', function () {
                     var container = document.getElementById('selector'),
                         child = document.getElementsByClassName('child')[0],
                         clickedEl,
+                        elementWithEventAttached,
                         clickCallback =  function (e) {
                             clickedEl = e.target;
+                            elementWithEventAttached = e.currentTarget;
                         };
 
                     container.addEventListener('click', clickCallback);
                     jasmine.virtualDom.trigger(child, 'click');
 
                     expect(clickedEl.id).toBe(child.id);
+                    expect(elementWithEventAttached).toBe(container);
                 });
 
                 describe('when at least one of the listeners is preventDefault', function () {
