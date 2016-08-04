@@ -59,36 +59,29 @@ window.getJasmineRequireObj().VirtualDom = function () {
     },
 
     getSingleElement = function (el) {
-        if (el) {
-            return spyElement.call(this, el);
-        }
-
-        return null;
+        return el ? spyElement.call(this, el) : null;
     },
 
     isAlreadyInstalled = function () {
         return !!oldDocument;
     },
 
-    mergeConfigIntoEventObject = function (eventObj, config) {
-        var prop;
-
-        for (prop in config) {
-            if (config.hasOwnProperty(prop)) {
-                eventObj[prop] = config[prop];
-            }
-        }
-    },
-
-    merge = function (target, source) {
+    copyObjectFrom = function (source) {
         var result = {},
             property;
 
         /* jshint forin: false */
-        for (property in target) {
-            result[property] = target[property];
+        for (property in source) {
+            result[property] = source[property];
         }
         /* jshint forin: true */
+
+        return result;
+    },
+
+    merge = function (target, source) {
+        var result = target,
+            property;
 
         for (property in source) {
             if (source.hasOwnProperty(property)) {
@@ -127,6 +120,14 @@ window.getJasmineRequireObj().VirtualDom = function () {
         if (shouldEventBubble.call(this, element)) {
             dispatchEvent.call(this, element.parentElement, eventObject);
         }
+    },
+
+    prepareEvent = function (eventObject, element, config) {
+        var eventCopy = merge.call(this, copyObjectFrom.call(this, eventObject), config);
+
+        return merge.call(this, eventCopy, {
+            target: element
+        });
     };
 
     /**
@@ -238,11 +239,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
         });
         element.addEventListener(event, onEventTriggered);
 
-        mergeConfigIntoEventObject.call(this, eventObject, config);
-
-        dispatchEvent.call(this, element, merge.call(this, eventObject, {
-            target: element
-        }));
+        dispatchEvent.call(this, element, prepareEvent.call(this, eventObject, element, config));
 
         return eventObject.preventDefault.calls.count() === 1;
     };
