@@ -56,6 +56,8 @@ window.getJasmineRequireObj().VirtualDom = function () {
                 return result;
             }
         }
+
+        return;
     },
 
     getSingleElement = function (el) {
@@ -194,7 +196,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
     /**
     * This method will override the document API to use the virtual one, instead of the real one.
     *
-    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
+    * @param {String} [body] HTML template to be added into the virtual dom when installing it
     * @memberof VirtualDom
     */
     this.install = function (body) {
@@ -228,9 +230,9 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
     /**
     * Trigger any kind of event from any element, native or custom events
-    * @param {Object} element. Dom Element
-    * @param {String} event. Event name
-    * @param {Object} config. parameters to be added to the event object
+    * @param {Object} element Dom Element
+    * @param {String} event Event name
+    * @param {Object} config parameters to be added to the event object
     * @memberof VirtualDom
     */
     this.trigger = function (element, event, config) {
@@ -252,7 +254,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
 
     /**
     * Uninstall and install the virtual dom with a new html
-    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
+    * @param {String} [body] HTML template to be added into the virtual dom when installing it
     * @memberof VirtualDom
     */
     this.resetDom = function (body) {
