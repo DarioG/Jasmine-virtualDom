@@ -7,6 +7,46 @@
 window.getJasmineRequireObj().VirtualDom = function () {
     var oldDocument,
 
+    isAlreadyStubbed = function (el) {
+        return el.events;
+    },
+
+    stubElement = function (el) {
+        var original = el.addEventListener;
+
+        el.events = {};
+        el.addEventListener = function (name, listener) {
+            if (this.events[name]) {
+                this.events[name].push(listener);
+            } else {
+                this.events[name] = [listener];
+            }
+
+            original.call(this, name, listener);
+        };
+
+        return el;
+    },
+
+    processElement = function (el) {
+        if (!isAlreadyStubbed.call(this, el)) {
+            return stubElement.call(this, el);
+        }
+
+        return el;
+    },
+
+    processElements = function (elements) {
+        var i,
+            length = elements.length;
+
+        for (i = 0; i < length; i++) {
+            processElement.call(this, elements[i]);
+        }
+
+        return elements;
+    },
+
     getElementById = function (parent, id) {
         var children = parent.childNodes,
             child,
@@ -26,69 +66,131 @@ window.getJasmineRequireObj().VirtualDom = function () {
                 return result;
             }
         }
+
+        return;
+    },
+
+    getSingleElement = function (el) {
+        return el ? processElement.call(this, el) : null;
     },
 
     isAlreadyInstalled = function () {
         return !!oldDocument;
     },
 
-    mergeConfigIntoEventObject = function (eventObj, config) {
-        var prop;
+    copyObjectFrom = function (source) {
+        var result = {},
+            property;
 
-        for (prop in config) {
-            if (config.hasOwnProperty(prop)) {
-                eventObj[prop] = config[prop];
+        /* jshint forin: false */
+        for (property in source) {
+            result[property] = source[property];
+        }
+        /* jshint forin: true */
+
+        return result;
+    },
+
+    merge = function (target, source) {
+        var result = target,
+            property;
+
+        for (property in source) {
+            if (source.hasOwnProperty(property)) {
+                result[property] = source[property];
             }
         }
+
+        return result;
     },
 
     onEventTriggered = function (e) {
         e.preventDefault();
 
         e.target.removeEventListener(e.type, onEventTriggered);
-    };
+    },
 
-    /**
-    * This method will override the document API to use the virtual one, instead of the real one.
-    *
-    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
-    * @memberof VirtualDom
-    */
-    this.install = function (body) {
-        var dom ;
+    shouldEventBubble = function (element) {
+        return element.parentElement !== null && element.parentElement !== undefined;
+    },
 
-        if (isAlreadyInstalled.call(this)) {
-            throw 'Virtual dom already installed';
+    hasListeners = function (element, event) {
+        return element.events && element.events[event];
+    },
+
+    callListeners = function (element, eventObject) {
+        var i,
+            listeners = element.events[eventObject.type];
+
+        for (i = 0; i < listeners.length; i++) {
+            listeners[i].call(element, merge.call(this, eventObject, {
+                currentTarget: element
+            }));
+        }
+    },
+
+    dispatchEvent = function (element, eventObject) {
+        if (hasListeners.call(this, element, eventObject.type)) {
+            callListeners.call(this, element, eventObject);
         }
 
-        dom = document.createElement('html');
-        dom.innerHTML = body ? body : '';
+        if (shouldEventBubble.call(this, element)) {
+            dispatchEvent.call(this, element.parentElement, eventObject);
+        }
+    },
+
+    prepareEvent = function (eventObject, element, config) {
+        var eventCopy = merge.call(this, copyObjectFrom.call(this, eventObject), config);
+
+        return merge.call(this, eventCopy, {
+            target: element,
+            srcElement: element,
+            toElement: element
+        });
+    },
+
+    stubDomApi = function (dom) {
+        var me = this,
+            docCreateElementBackup = document.createElement;
 
         oldDocument = {
             getElementsByTagName: document.getElementsByTagName,
             getElementById: document.getElementById,
             querySelector: document.querySelector,
             querySelectorAll: document.querySelectorAll,
-            getElementsByClassName: document.getElementsByClassName
+            getElementsByClassName: document.getElementsByClassName,
+            addEventListener: document.addEventListener
+        };
+
+        document.createElement = function () {
+            // when this method is spied in the specs there is a conflic because
+            // the spies are set back after the virtual dom is set back
+            if (!oldDocument) {
+                this.createElement = docCreateElementBackup;
+                return this.createElement.apply(this, arguments);
+            } else {
+                return processElement.call(me, docCreateElementBackup.apply(this, arguments));
+            }
         };
 
         document.getElementsByTagName = function (tagName) {
             if (tagName.toLowerCase() === 'html') {
-                return [dom];
+                // This array could lead to problems
+                return processElements.call(me, [dom]);
             }
-            return dom.getElementsByTagName(tagName);
+            return processElements.call(me, dom.getElementsByTagName(tagName));
         };
         document.getElementById = function (id) {
-            return getElementById.call(this, dom, id);
+            return getSingleElement.call(me, getElementById.call(me, dom, id));
         };
         document.getElementsByClassName = function (className) {
-            return dom.getElementsByClassName(className);
+            return processElements.call(me, dom.getElementsByClassName(className));
         };
         document.querySelector = function (selector) {
-            return dom.querySelector(selector);
+            return getSingleElement.call(me, dom.querySelector(selector));
         };
         document.querySelectorAll = function (selector) {
-            return dom.querySelectorAll(selector);
+            return processElements.call(me, dom.querySelectorAll(selector));
         };
 
         // Object.defineProperty(document, 'body', {
@@ -104,6 +206,27 @@ window.getJasmineRequireObj().VirtualDom = function () {
         //     },
         //     configurable: true
         // });
+
+        processElement.call(this, document);
+    };
+
+    /**
+    * This method will override the document API to use the virtual one, instead of the real one.
+    *
+    * @param {String} [body] HTML template to be added into the virtual dom when installing it
+    * @memberof VirtualDom
+    */
+    this.install = function (body) {
+        var dom;
+
+        if (isAlreadyInstalled.call(this)) {
+            throw 'Virtual dom already installed';
+        }
+
+        dom = document.createElement('html');
+        dom.innerHTML = body ? body : '';
+
+        stubDomApi.call(this, dom);
     };
 
     /**
@@ -118,32 +241,37 @@ window.getJasmineRequireObj().VirtualDom = function () {
             }
         }
 
+        delete document.events;
         oldDocument = null;
     };
 
     /**
     * Trigger any kind of event from any element, native or custom events
-    * @param {Object} element. Dom Element
-    * @param {String} event. Event name
-    * @param {Object} config. parameters to be added to the event object
+    * @param {Object} element Dom Element
+    * @param {String} event Event name
+    * @param {Object} config parameters to be added to the event object
     * @memberof VirtualDom
     */
     this.trigger = function (element, event, config) {
-        var eventObject = document.createEvent('Event');
-        eventObject.initEvent(event, true, true);
-        spyOn(eventObject, 'preventDefault').and.callThrough();
+        var eventObject = new Event(event, {
+            bubbles: true,
+            cancelable: true
+        }),
+        preventBackup = eventObject.preventDefault;
+
+        spyOn(eventObject, 'preventDefault').and.callFake(function () {
+            preventBackup.call(eventObject);
+        });
         element.addEventListener(event, onEventTriggered);
 
-        mergeConfigIntoEventObject.call(this, eventObject, config);
-
-        element.dispatchEvent(eventObject);
+        dispatchEvent.call(this, element, prepareEvent.call(this, eventObject, element, config));
 
         return eventObject.preventDefault.calls.count() === 1;
     };
 
     /**
     * Uninstall and install the virtual dom with a new html
-    * @param {String} [body]. HTML template to be added into the virtual dom when installing it
+    * @param {String} [body] HTML template to be added into the virtual dom when installing it
     * @memberof VirtualDom
     */
     this.resetDom = function (body) {

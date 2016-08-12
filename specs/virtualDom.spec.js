@@ -11,7 +11,9 @@ describe('VirtualDom', function () {
             getElementById: document.getElementById,
             getElementsByClassName: document.getElementsByClassName,
             querySelector: document.querySelector,
-            querySelectorAll: document.querySelectorAll//,
+            querySelectorAll: document.querySelectorAll,
+            addEventListener: document.addEventListener,
+            createElement: document.createElement//,
             // body: document.body,
             // head: document.head
         };
@@ -47,7 +49,7 @@ describe('VirtualDom', function () {
                     '<div id="myContainer" class="container">Hi!</div>' +
                     '<div class="container">Hi2!</div>' +
                     '<div id="selector">' +
-                        '<div class="child">Yeeeeepa</div>' +
+                        '<div id="child1" class="child">Yeeeeepa</div>' +
                         '<div class="child">Yeeeeepa2</div>' +
                     '</div>' +
                 '</body>';
@@ -66,6 +68,18 @@ describe('VirtualDom', function () {
                 expect(realDom.innerHTML).not.toEqual(body);
             });
 
+            describe('when document.createElement has been spied', function () {
+
+                // test to avoid that document break the tests.
+                it('should still work', function () {
+                    spyOn(document, 'createElement');
+
+                    document.createElement();
+
+                    expect(document.createElement).toHaveBeenCalled();
+                });
+            });
+
             describe('trying to installing again', function () {
 
                 it('should throw an exception', function () {
@@ -80,10 +94,17 @@ describe('VirtualDom', function () {
                 describe('if the elements exist in the virtual Dom', function () {
 
                     it('should return it', function () {
-                        var div = document.getElementsByTagName('div')[0];
+                        var elements = document.getElementsByTagName('div'),
+                            div = elements[0];
 
                         expect(div.tagName).toBe('DIV');
                         expect(div.innerText).toBe('Hi!');
+                    });
+
+                    it('should return always the same collection', function () {
+                        var collection = document.getElementsByClassName('child');
+
+                        expect(collection).toBe(document.getElementsByClassName('child'));
                     });
                 });
 
@@ -135,6 +156,15 @@ describe('VirtualDom', function () {
 
                         expect(div.innerText).toBe('Yeeeeepa');
                         expect(div.tagName).toBe('DIV');
+                    });
+                });
+
+                describe('otherwise', function () {
+
+                    it('should return null', function () {
+                        var div = document.querySelector('#selector .nochild');
+
+                        expect(div).toBe(null);
                     });
                 });
             });
@@ -190,6 +220,7 @@ describe('VirtualDom', function () {
                     expect(oldAPI.getElementsByClassName).toBe(document.getElementsByClassName);
                     expect(oldAPI.querySelector).toBe(document.querySelector);
                     expect(oldAPI.querySelectorAll).toBe(document.querySelectorAll);
+                    expect(oldAPI.addEventListener).toBe(document.addEventListener);
                     // expect(oldAPI.body).toBe(document.body);
                     // expect(oldAPI.head).toBe(document.head);
                 });
@@ -198,18 +229,25 @@ describe('VirtualDom', function () {
             describe('trigger(element, event)', function () {
 
                 it('should trigger all the event listeners', function () {
-                    var container = document.getElementById('myContainer'),
+                    var htmlEl = document.getElementsByTagName('html')[0],
+                        container = document.getElementById('myContainer'),
+                        htmlCallback = jasmine.createSpy(),
                         clickCallback = jasmine.createSpy(),
                         clickCallback2 = jasmine.createSpy(),
                         blurCallback = jasmine.createSpy(),
                         customCallback = jasmine.createSpy(),
                         focus = jasmine.createSpy();
 
+                    htmlEl.addEventListener('click', htmlCallback);
                     container.addEventListener('click', clickCallback);
                     container.addEventListener('click', clickCallback2);
                     container.addEventListener('blur', blurCallback);
                     container.addEventListener('focus', focus);
                     container.addEventListener('custom', customCallback);
+
+                    jasmine.virtualDom.trigger(htmlEl, 'click');
+
+                    expect(htmlCallback).toHaveBeenCalled();
 
                     jasmine.virtualDom.trigger(container, 'click');
 
@@ -227,6 +265,61 @@ describe('VirtualDom', function () {
                     jasmine.virtualDom.trigger(container, 'custom');
 
                     expect(customCallback).toHaveBeenCalled();
+                });
+
+                it('should trigger also events attached to the document', function () {
+                    var callback = jasmine.createSpy();
+
+                    document.addEventListener('keyup', callback);
+
+                    jasmine.virtualDom.trigger(document, 'keyup');
+
+                    expect(callback).toHaveBeenCalled();
+                });
+
+                describe('when we get the same element twice from the dom', function () {
+
+                    it('should trigger the events', function () {
+                        var el = document.getElementById('child1'),
+                            callback = jasmine.createSpy();
+
+                        el.addEventListener('click', callback);
+
+                        jasmine.virtualDom.trigger(document.getElementById('child1'), 'click');
+
+                        expect(callback).toHaveBeenCalled();
+                    });
+                });
+
+                it('should trigger events in elements created with the document api', function () {
+                    var container = document.getElementById('myContainer'),
+                        callback = jasmine.createSpy(),
+                        newEl = document.createElement('div');
+
+                    newEl.addEventListener('click', callback);
+
+                    container.appendChild(newEl);
+
+                    jasmine.virtualDom.trigger(newEl, 'click');
+
+                    expect(callback).toHaveBeenCalled();
+                });
+
+                it('should work with event delegation', function () {
+                    var container = document.getElementById('selector'),
+                        child = document.getElementsByClassName('child')[0],
+                        event,
+                        clickCallback =  function (e) {
+                            event = e;
+                        };
+
+                    container.addEventListener('click', clickCallback);
+                    jasmine.virtualDom.trigger(child, 'click');
+
+                    expect(event.target.id).toBe(child.id);
+                    expect(event.srcElement.id).toBe(child.id);
+                    expect(event.toElement.id).toBe(child.id);
+                    expect(event.currentTarget).toBe(container);
                 });
 
                 describe('when at least one of the listeners is preventDefault', function () {
@@ -261,11 +354,14 @@ describe('VirtualDom', function () {
 
                 it('should disable real behaviour of elements', function () {
                     var link,
-                        event = document.createEvent('Event');
+                        event = new Event('click', {
+                            bubbles: true,
+                            cancelable: true
+                        });
 
                     jasmine.virtualDom.resetDom('<a id="link" href="" />');
 
-                    spyOn(document, 'createEvent').and.returnValue(event);
+                    spyOn(window, 'Event').and.returnValue(event);
 
                     link = document.getElementById('link');
 
@@ -318,7 +414,7 @@ describe('VirtualDom', function () {
                     jasmine.virtualDom.resetDom();
                     container = document.getElementById('myContainer');
 
-                    expect(container).not.toBeDefined();
+                    expect(container).toBeNull();
                 });
 
                 it('should add the new html', function () {

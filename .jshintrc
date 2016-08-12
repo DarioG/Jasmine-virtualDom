@@ -5,8 +5,7 @@
   "browser": true,
   "esnext": true,
   "globals": {
-    "GP": true,
-    "dataLayer": true
+    "HTMLCollection": true
   },
   "onevar": true,
   "curly" : true,
