@@ -114,20 +114,25 @@ window.getJasmineRequireObj().VirtualDom = function () {
         return element.parentElement !== null && element.parentElement !== undefined;
     },
 
-    callListeners = function (element, eventObject) {
-        var i;
+    hasListeners = function (element, event) {
+        return element.events && element.events[event];
+    },
 
-        if (element.events && element.events[eventObject.type]) {
-            for (i = 0; i < element.events[eventObject.type].length; i++) {
-                element.events[eventObject.type][i].call(element, merge.call(this, eventObject, {
-                    currentTarget: element
-                }));
-            }
+    callListeners = function (element, eventObject) {
+        var i,
+            listeners = element.events[eventObject.type];
+
+        for (i = 0; i < listeners.length; i++) {
+            listeners[i].call(element, merge.call(this, eventObject, {
+                currentTarget: element
+            }));
         }
     },
 
     dispatchEvent = function (element, eventObject) {
-        callListeners.call(this, element, eventObject);
+        if (hasListeners.call(this, element, eventObject.type)) {
+            callListeners.call(this, element, eventObject);
+        }
 
         if (shouldEventBubble.call(this, element)) {
             dispatchEvent.call(this, element.parentElement, eventObject);
@@ -144,7 +149,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
         });
     },
 
-    prepareDocument = function (dom) {
+    stubDomApi = function (dom) {
         var me = this,
             docCreateElementBackup = document.createElement;
 
@@ -158,6 +163,8 @@ window.getJasmineRequireObj().VirtualDom = function () {
         };
 
         document.createElement = function () {
+            // when this method is spied in the specs there is a conflic because
+            // the spies are set back after the virtual dom is set back
             if (!oldDocument) {
                 this.createElement = docCreateElementBackup;
                 return this.createElement.apply(this, arguments);
@@ -219,7 +226,7 @@ window.getJasmineRequireObj().VirtualDom = function () {
         dom = document.createElement('html');
         dom.innerHTML = body ? body : '';
 
-        prepareDocument.call(this, dom);
+        stubDomApi.call(this, dom);
     };
 
     /**
