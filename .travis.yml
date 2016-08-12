@@ -1,0 +1,3 @@
+before_script:
+  - npm install -g
+script: grunt qa
