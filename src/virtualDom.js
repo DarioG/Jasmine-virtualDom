@@ -66,8 +66,6 @@ window.getJasmineRequireObj().VirtualDom = function () {
                 return result;
             }
         }
-
-        return;
     },
 
     getSingleElement = function (el) {
