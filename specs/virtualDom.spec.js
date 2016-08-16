@@ -13,9 +13,7 @@ describe('VirtualDom', function () {
             querySelector: document.querySelector,
             querySelectorAll: document.querySelectorAll,
             addEventListener: document.addEventListener,
-            createElement: document.createElement//,
-            // body: document.body,
-            // head: document.head
+            createElement: document.createElement
         };
     });
 
@@ -49,10 +47,10 @@ describe('VirtualDom', function () {
                     '<div id="myContainer" class="container">Hi!</div>' +
                     '<div class="container">Hi2!</div>' +
                     '<div id="selector">' +
-                        '<div id="child1" class="child">Yeeeeepa</div>' +
-                        '<div class="child">Yeeeeepa2</div>' +
+                    '<div id="child1" class="child">Yeeeeepa</div>' +
+                    '<div class="child">Yeeeeepa2</div>' +
                     '</div>' +
-                '</body>';
+                    '</body>';
 
                 jasmine.virtualDom.install(body);
             });
@@ -309,7 +307,7 @@ describe('VirtualDom', function () {
                     var container = document.getElementById('selector'),
                         child = document.getElementsByClassName('child')[0],
                         event,
-                        clickCallback =  function (e) {
+                        clickCallback = function (e) {
                             event = e;
                         };
 
@@ -422,7 +420,7 @@ describe('VirtualDom', function () {
 
                     jasmine.virtualDom.resetDom('<head></head><body>' +
                         '<div id="myNewContainer" class="container">Hi!</div>' +
-                    '</body>');
+                        '</body>');
                     container = document.getElementById('myNewContainer');
 
                     expect(container).toBeDefined();

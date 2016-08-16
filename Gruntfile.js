@@ -1,10 +1,10 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
         jsdoc: {
-            dist : {
+            dist: {
                 src: ['src/**/*.js'],
                 excludePattern: '',
                 options: {
@@ -19,12 +19,24 @@ module.exports = function (grunt) {
                 src: ['src/**/*.js'],
                 options: {
                     specs: ['specs/**/*.js'],
-                    keepRunner : false,
-                    display : 'full',
-                    summary : true,
+                    keepRunner: false,
+                    display: 'full',
+                    summary: true,
                     junit: {
                         path: 'log/jasmine'
                     }
+                }
+            }
+        },
+
+        jsbeautifier: {
+            modify: {
+                src: [
+                    'src/**/*.js',
+                    'specs/**/*.js'
+                ],
+                options: {
+                    config: '.jsbeautifyrc'
                 }
             }
         },
@@ -97,6 +109,7 @@ module.exports = function (grunt) {
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('test', ['jasmine']);
     grunt.registerTask('qa', [
+        'jsbeautifier',
         'jshint',
         'jscs',
         'jasmine'
