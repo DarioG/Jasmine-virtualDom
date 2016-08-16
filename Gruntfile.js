@@ -16,7 +16,10 @@ module.exports = function(grunt) {
 
         jasmine: {
             components: {
-                src: ['src/**/*.js'],
+                src: [
+                    'src/**/*.js',
+                    '!src/boot.js'
+                ],
                 options: {
                     specs: ['specs/**/*.js'],
                     keepRunner: false,
@@ -46,6 +49,7 @@ module.exports = function(grunt) {
             dist: {
                 src: [
                     'src/virtualDom.js',
+                    'src/decorators/*.js',
                     'src/boot.js'
                 ],
                 dest: 'output/virtualDom.js',
@@ -121,9 +125,12 @@ module.exports = function(grunt) {
     grunt.registerTask('test', ['jasmine']);
     grunt.registerTask('compile', ['concat']);
     grunt.registerTask('qa', [
-        'jsbeautifier',
         'jshint',
         'jscs',
         'jasmine'
+    ]);
+    grunt.registerTask('push', [
+        'jsbeautifier',
+        'qa'
     ]);
 };

@@ -133,6 +133,17 @@ describe('VirtualDom', function () {
                         expect(div.tagName).toBe('DIV');
                         expect(div.innerText).toBe('Hi!');
                     });
+
+                    it('should return always the same element', function () {
+                        var el = document.getElementById('child1'),
+                            callback = function () {},
+                            events;
+
+                        el.addEventListener('click', callback);
+                        events = el.events;
+
+                        expect(document.getElementById('child1').events).toEqual(events);
+                    });
                 });
             });
 
@@ -149,6 +160,12 @@ describe('VirtualDom', function () {
                         expect(divs[1].innerText).toBe('Hi2!');
                         expect(divs[1].tagName).toBe('DIV');
                     });
+
+                    it('should return always the same collection', function () {
+                        var collection = document.getElementsByClassName('container');
+
+                        expect(collection).toBe(document.getElementsByClassName('container'));
+                    });
                 });
             });
 
@@ -161,6 +178,12 @@ describe('VirtualDom', function () {
 
                         expect(div.innerText).toBe('Yeeeeepa');
                         expect(div.tagName).toBe('DIV');
+                    });
+
+                    it('should return always the same element', function () {
+                        var div = document.querySelector('#selector .child');
+
+                        expect(div).toBe(document.querySelector('#selector .child'));
                     });
                 });
 
@@ -187,6 +210,38 @@ describe('VirtualDom', function () {
                         expect(divs[1].innerText).toBe('Yeeeeepa2');
                         expect(divs[1].tagName).toBe('DIV');
                     });
+
+                    it('should return the same elements', function () {
+                        var selector = '#selector .child',
+                            divs = document.querySelectorAll(selector),
+                            callback = function () {};
+
+                        divs[0].addEventListener('click', callback);
+                        divs = document.querySelectorAll(selector);
+
+                        expect(divs[0].events.click[0]).toBe(callback);
+                    });
+                });
+            });
+
+            it('should mock document.addEventListener', function () {
+                var callback = function () {};
+
+                document.addEventListener('keyup', callback);
+
+                expect(document.events.keyup[0]).toBe(callback);
+            });
+
+            describe('when creating element with the document api', function () {
+
+                it('should be mocked elements', function () {
+                    var newEl = document.createElement('div'),
+                        callback = function () {};
+
+                    expect(newEl.events).toEqual({});
+                    newEl.addEventListener('click', callback);
+
+                    expect(newEl.events.click[0]).toBe(callback);
                 });
             });
 
@@ -228,186 +283,6 @@ describe('VirtualDom', function () {
                     expect(oldAPI.addEventListener).toBe(document.addEventListener);
                     // expect(oldAPI.body).toBe(document.body);
                     // expect(oldAPI.head).toBe(document.head);
-                });
-            });
-
-            describe('trigger(element, event)', function () {
-
-                it('should trigger all the event listeners', function () {
-                    var htmlEl = document.getElementsByTagName('html')[0],
-                        container = document.getElementById('myContainer'),
-                        htmlCallback = jasmine.createSpy(),
-                        clickCallback = jasmine.createSpy(),
-                        clickCallback2 = jasmine.createSpy(),
-                        blurCallback = jasmine.createSpy(),
-                        customCallback = jasmine.createSpy(),
-                        focus = jasmine.createSpy();
-
-                    htmlEl.addEventListener('click', htmlCallback);
-                    container.addEventListener('click', clickCallback);
-                    container.addEventListener('click', clickCallback2);
-                    container.addEventListener('blur', blurCallback);
-                    container.addEventListener('focus', focus);
-                    container.addEventListener('custom', customCallback);
-
-                    jasVirtualDom.trigger(htmlEl, 'click');
-
-                    expect(htmlCallback).toHaveBeenCalled();
-
-                    jasVirtualDom.trigger(container, 'click');
-
-                    expect(clickCallback).toHaveBeenCalled();
-                    expect(clickCallback2).toHaveBeenCalled();
-
-                    jasVirtualDom.trigger(container, 'blur');
-
-                    expect(blurCallback).toHaveBeenCalled();
-
-                    jasVirtualDom.trigger(container, 'focus');
-
-                    expect(focus).toHaveBeenCalled();
-
-                    jasVirtualDom.trigger(container, 'custom');
-
-                    expect(customCallback).toHaveBeenCalled();
-                });
-
-                it('should trigger also events attached to the document', function () {
-                    var callback = jasmine.createSpy();
-
-                    document.addEventListener('keyup', callback);
-
-                    jasVirtualDom.trigger(document, 'keyup');
-
-                    expect(callback).toHaveBeenCalled();
-                });
-
-                describe('when we get the same element twice from the dom', function () {
-
-                    it('should trigger the events', function () {
-                        var el = document.getElementById('child1'),
-                            callback = jasmine.createSpy();
-
-                        el.addEventListener('click', callback);
-
-                        jasVirtualDom.trigger(document.getElementById('child1'), 'click');
-
-                        expect(callback).toHaveBeenCalled();
-                    });
-                });
-
-                it('should trigger events in elements created with the document api', function () {
-                    var container = document.getElementById('myContainer'),
-                        callback = jasmine.createSpy(),
-                        newEl = document.createElement('div');
-
-                    newEl.addEventListener('click', callback);
-
-                    container.appendChild(newEl);
-
-                    jasVirtualDom.trigger(newEl, 'click');
-
-                    expect(callback).toHaveBeenCalled();
-                });
-
-                it('should work with event delegation', function () {
-                    var container = document.getElementById('selector'),
-                        child = document.getElementsByClassName('child')[0],
-                        event,
-                        clickCallback = function (e) {
-                            event = e;
-                        };
-
-                    container.addEventListener('click', clickCallback);
-                    jasVirtualDom.trigger(child, 'click');
-
-                    expect(event.target.id).toBe(child.id);
-                    expect(event.srcElement.id).toBe(child.id);
-                    expect(event.toElement.id).toBe(child.id);
-                    expect(event.currentTarget).toBe(container);
-                });
-
-                describe('when at least one of the listeners is preventDefault', function () {
-
-                    it('should return false', function () {
-                        var container = document.getElementById('myContainer'),
-                            result;
-
-                        container.addEventListener('custom', function (e) {
-                            e.preventDefault();
-                        });
-
-                        result = jasVirtualDom.trigger(container, 'custom');
-
-                        expect(result).toBe(false);
-                    });
-                });
-
-                describe('otherwise', function () {
-
-                    it('should return true', function () {
-                        var container = document.getElementById('myContainer'),
-                            result;
-
-                        container.addEventListener('custom', function () {});
-
-                        result = jasVirtualDom.trigger(container, 'custom');
-
-                        expect(result).toBe(true);
-                    });
-                });
-
-                it('should disable real behaviour of elements', function () {
-                    var link,
-                        event = new Event('click', {
-                            bubbles: true,
-                            cancelable: true
-                        });
-
-                    jasVirtualDom.resetDom('<a id="link" href="" />');
-
-                    spyOn(window, 'Event').and.returnValue(event);
-
-                    link = document.getElementById('link');
-
-                    // we need to avoid that the page reload while writing the test
-                    link.addEventListener('click', function (e) {
-                        e.preventDefault();
-                    });
-                    //
-
-                    jasVirtualDom.trigger(link, 'click');
-
-                    // this method is spied in the trigger method
-                    expect(event.preventDefault.calls.count()).toBe(2);
-
-                    // To check that the temporary event listener is removed
-                    link.dispatchEvent(event);
-                    expect(event.preventDefault.calls.count()).toBe(3);
-                });
-
-                describe('when passing in some config', function () {
-
-                    it('should add it to the event object', function () {
-                        var config,
-                            container = document.getElementById('myContainer'),
-                            callback = function (e) {
-                                config = e;
-                            };
-
-                        container.addEventListener('click', callback);
-                        jasVirtualDom.trigger(container, 'click', {
-                            config1: 'config1',
-                            config2: 'config2',
-                            config3: 'config3',
-                            config4: 'config4'
-                        });
-
-                        expect(config.config1).toEqual('config1');
-                        expect(config.config2).toEqual('config2');
-                        expect(config.config3).toEqual('config3');
-                        expect(config.config4).toEqual('config4');
-                    });
                 });
             });
 
