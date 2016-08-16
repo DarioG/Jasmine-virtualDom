@@ -1,20 +1,21 @@
 {
-    "name": "GPGrunt",
-    "version": "0.1.0",
-    "private": true,
-    "devDependencies": {
-        "grunt": "~0.4.0",
-        "grunt-jscs": "~3.0.1",
-        "grunt-contrib-jasmine": "~1.0.3",
-        "grunt-contrib-jshint": "~1.0.0",
-        "grunt-override-config": "~0.1.0",
-        "jshint-junit-reporter": "^0.2.2",
-        "grunt-contrib-watch": "^0.6.1",
-        "grunt-jsdoc": "~0.6.1",
-        "grunt-jslint": "*",
-        "load-grunt-tasks": "^3.2.0",
-        "time-grunt": "^1.2.1",
-        "grunt-jsbeautifier": "^0.2.13",
-        "minami": "latest"
-    }
+  "name": "GPGrunt",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-jscs": "~3.0.1",
+    "grunt-contrib-jasmine": "~1.0.3",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-override-config": "~0.1.0",
+    "jshint-junit-reporter": "^0.2.2",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-jsdoc": "~0.6.1",
+    "grunt-jslint": "*",
+    "load-grunt-tasks": "^3.2.0",
+    "time-grunt": "^1.2.1",
+    "grunt-jsbeautifier": "^0.2.13",
+    "minami": "latest",
+    "grunt-contrib-concat": "~1.0.1"
+  }
 }

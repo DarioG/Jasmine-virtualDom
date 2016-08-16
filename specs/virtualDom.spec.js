@@ -1,10 +1,17 @@
 describe('VirtualDom', function () {
 
     var realDom,
-        oldAPI;
+        oldAPI,
+        jasVirtualDom,
+
+        instanciate = function () {
+            var require = window.getJasmineRequireObj();
+            return new require.VirtualDom();
+        };
 
     beforeEach(function () {
         realDom = document.getElementsByTagName('html')[0];
+        jasVirtualDom = instanciate();
 
         oldAPI = {
             getElementsByTagName: document.getElementsByTagName,
@@ -28,13 +35,13 @@ describe('VirtualDom', function () {
             it('should add only a empty head and body', function () {
                 var html;
 
-                jasmine.virtualDom.install();
+                jasVirtualDom.install();
 
                 html = document.getElementsByTagName('html')[0];
 
                 expect(html.innerHTML).toEqual('<head></head><body></body>');
 
-                jasmine.virtualDom.uninstall();
+                jasVirtualDom.uninstall();
             });
         });
 
@@ -52,11 +59,11 @@ describe('VirtualDom', function () {
                     '</div>' +
                     '</body>';
 
-                jasmine.virtualDom.install(body);
+                jasVirtualDom.install(body);
             });
 
             afterEach(function () {
-                jasmine.virtualDom.uninstall();
+                jasVirtualDom.uninstall();
             });
 
             it('should add the html passed in', function () {
@@ -82,7 +89,7 @@ describe('VirtualDom', function () {
 
                 it('should throw an exception', function () {
                     expect(function () {
-                        jasmine.virtualDom.install(body);
+                        jasVirtualDom.install(body);
                     }).toThrow('Virtual dom already installed');
                 });
             });
@@ -206,7 +213,7 @@ describe('VirtualDom', function () {
                 it('should return the real dom', function () {
                     var html;
 
-                    jasmine.virtualDom.uninstall();
+                    jasVirtualDom.uninstall();
 
                     html = document.getElementsByTagName('html')[0];
 
@@ -243,24 +250,24 @@ describe('VirtualDom', function () {
                     container.addEventListener('focus', focus);
                     container.addEventListener('custom', customCallback);
 
-                    jasmine.virtualDom.trigger(htmlEl, 'click');
+                    jasVirtualDom.trigger(htmlEl, 'click');
 
                     expect(htmlCallback).toHaveBeenCalled();
 
-                    jasmine.virtualDom.trigger(container, 'click');
+                    jasVirtualDom.trigger(container, 'click');
 
                     expect(clickCallback).toHaveBeenCalled();
                     expect(clickCallback2).toHaveBeenCalled();
 
-                    jasmine.virtualDom.trigger(container, 'blur');
+                    jasVirtualDom.trigger(container, 'blur');
 
                     expect(blurCallback).toHaveBeenCalled();
 
-                    jasmine.virtualDom.trigger(container, 'focus');
+                    jasVirtualDom.trigger(container, 'focus');
 
                     expect(focus).toHaveBeenCalled();
 
-                    jasmine.virtualDom.trigger(container, 'custom');
+                    jasVirtualDom.trigger(container, 'custom');
 
                     expect(customCallback).toHaveBeenCalled();
                 });
@@ -270,7 +277,7 @@ describe('VirtualDom', function () {
 
                     document.addEventListener('keyup', callback);
 
-                    jasmine.virtualDom.trigger(document, 'keyup');
+                    jasVirtualDom.trigger(document, 'keyup');
 
                     expect(callback).toHaveBeenCalled();
                 });
@@ -283,7 +290,7 @@ describe('VirtualDom', function () {
 
                         el.addEventListener('click', callback);
 
-                        jasmine.virtualDom.trigger(document.getElementById('child1'), 'click');
+                        jasVirtualDom.trigger(document.getElementById('child1'), 'click');
 
                         expect(callback).toHaveBeenCalled();
                     });
@@ -298,7 +305,7 @@ describe('VirtualDom', function () {
 
                     container.appendChild(newEl);
 
-                    jasmine.virtualDom.trigger(newEl, 'click');
+                    jasVirtualDom.trigger(newEl, 'click');
 
                     expect(callback).toHaveBeenCalled();
                 });
@@ -312,7 +319,7 @@ describe('VirtualDom', function () {
                         };
 
                     container.addEventListener('click', clickCallback);
-                    jasmine.virtualDom.trigger(child, 'click');
+                    jasVirtualDom.trigger(child, 'click');
 
                     expect(event.target.id).toBe(child.id);
                     expect(event.srcElement.id).toBe(child.id);
@@ -330,7 +337,7 @@ describe('VirtualDom', function () {
                             e.preventDefault();
                         });
 
-                        result = jasmine.virtualDom.trigger(container, 'custom');
+                        result = jasVirtualDom.trigger(container, 'custom');
 
                         expect(result).toBe(false);
                     });
@@ -344,7 +351,7 @@ describe('VirtualDom', function () {
 
                         container.addEventListener('custom', function () {});
 
-                        result = jasmine.virtualDom.trigger(container, 'custom');
+                        result = jasVirtualDom.trigger(container, 'custom');
 
                         expect(result).toBe(true);
                     });
@@ -357,7 +364,7 @@ describe('VirtualDom', function () {
                             cancelable: true
                         });
 
-                    jasmine.virtualDom.resetDom('<a id="link" href="" />');
+                    jasVirtualDom.resetDom('<a id="link" href="" />');
 
                     spyOn(window, 'Event').and.returnValue(event);
 
@@ -369,7 +376,7 @@ describe('VirtualDom', function () {
                     });
                     //
 
-                    jasmine.virtualDom.trigger(link, 'click');
+                    jasVirtualDom.trigger(link, 'click');
 
                     // this method is spied in the trigger method
                     expect(event.preventDefault.calls.count()).toBe(2);
@@ -389,7 +396,7 @@ describe('VirtualDom', function () {
                             };
 
                         container.addEventListener('click', callback);
-                        jasmine.virtualDom.trigger(container, 'click', {
+                        jasVirtualDom.trigger(container, 'click', {
                             config1: 'config1',
                             config2: 'config2',
                             config3: 'config3',
@@ -409,7 +416,7 @@ describe('VirtualDom', function () {
                 it('should clean the previous dom', function () {
                     var container;
 
-                    jasmine.virtualDom.resetDom();
+                    jasVirtualDom.resetDom();
                     container = document.getElementById('myContainer');
 
                     expect(container).toBeNull();
@@ -418,7 +425,7 @@ describe('VirtualDom', function () {
                 it('should add the new html', function () {
                     var container;
 
-                    jasmine.virtualDom.resetDom('<head></head><body>' +
+                    jasVirtualDom.resetDom('<head></head><body>' +
                         '<div id="myNewContainer" class="container">Hi!</div>' +
                         '</body>');
                     container = document.getElementById('myNewContainer');

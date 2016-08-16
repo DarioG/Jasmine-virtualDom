@@ -41,6 +41,17 @@ module.exports = function(grunt) {
             }
         },
 
+        concat: {
+            options: {},
+            dist: {
+                src: [
+                    'src/virtualDom.js',
+                    'src/boot.js'
+                ],
+                dest: 'output/virtualDom.js',
+            },
+        },
+
         jshint: {
             options: {
                 jshintrc: '.jshintrc'
@@ -108,6 +119,7 @@ module.exports = function(grunt) {
     grunt.registerTask('dev', ['watch']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('test', ['jasmine']);
+    grunt.registerTask('compile', ['concat']);
     grunt.registerTask('qa', [
         'jsbeautifier',
         'jshint',
