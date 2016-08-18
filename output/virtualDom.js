@@ -184,7 +184,9 @@ window.getJasmineRequireObj().VirtualDom = function () {
 };
 
 /**
+ * Decorator. Add the functionality of triggering events
  *
+ * @constructor VirtualDomEvent
  */
 window.getJasmineRequireObj().VirtualDomEvent = function (virtualDom) {
     var merge = function (target, source) {
@@ -287,5 +289,5 @@ window.getJasmineRequireObj().VirtualDomEvent = function (virtualDom) {
 
 (function (global) {
     var require = global.getJasmineRequireObj();
-    global.jasmine.virtualDom = new require.VirtualDom();
+    global.jasmine.virtualDom = new require.VirtualDomEvent(new require.VirtualDom());
 })(window);

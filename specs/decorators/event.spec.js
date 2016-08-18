@@ -20,8 +20,7 @@ describe('Event', function () {
 
     describe('after installing', function () {
 
-        var baseVirtualDom,
-            decoratedVirtualDom,
+        var decoratedVirtualDom,
             virtualDom,
 
             initRealVirtualDom = function () {
@@ -42,8 +41,7 @@ describe('Event', function () {
             virtualDom = initRealVirtualDom();
             virtualDom.install(body);
 
-            baseVirtualDom = {};
-            decoratedVirtualDom = instanciate(baseVirtualDom);
+            decoratedVirtualDom = instanciate({});
         });
 
         afterEach(function () {

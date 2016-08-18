@@ -131,6 +131,7 @@ module.exports = function(grunt) {
     ]);
     grunt.registerTask('push', [
         'jsbeautifier',
-        'qa'
+        'qa',
+        'compile'
     ]);
 };

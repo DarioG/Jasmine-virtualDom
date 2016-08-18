@@ -1,5 +1,5 @@
 /**
- * DEcorator. Add the functionality of triggering events
+ * Decorator. Add the functionality of triggering events
  *
  * @constructor VirtualDomEvent
  */
