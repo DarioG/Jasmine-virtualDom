@@ -305,18 +305,6 @@ describe('domMocker', function () {
 
                 expect(document.events).not.toBeDefined();
             });
-
-            xdescribe('when document.createElement has been spied in a test suite', function () {
-
-                // test to avoid that document break the tests.
-                it('should still work', function () {
-                    spyOn(document, 'createElement');
-
-                    //stupid expectation
-                    document.createElement();
-                    expect(document.createElement).toHaveBeenCalled();
-                });
-            });
         });
     });
 });

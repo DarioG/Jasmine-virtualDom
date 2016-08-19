@@ -114,14 +114,7 @@ window.getJasmineRequireObj().domMocker = function () {
         processElement.call(this, document);
 
         document.createElement = function () {
-            // when this method is spied in the specs there is a conflic because
-            // the spies are set back after the virtual dom is set back
-            // if (!oldDocument) {
-            //     this.createElement = docCreateElementBackup;
-            //     return this.createElement.apply(this, arguments);
-            // } else {
             return processElement.call(this, docCreateElementBackup.apply(this, arguments));
-            //}
         };
     };
 

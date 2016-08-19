@@ -155,6 +155,11 @@ window.getJasmineRequireObj().VirtualDomEvent = function (virtualDom) {
     };
 };
 
+/**
+ * Service to mock the document API
+ *
+ * @constructor domMocker
+ */
 window.getJasmineRequireObj().domMocker = function () {
     var oldDocument,
 
@@ -223,6 +228,10 @@ window.getJasmineRequireObj().domMocker = function () {
             return elements;
         };
 
+    /**
+     * @param  {HTMLElement} dom Virtual dom
+     * @memberof domMocker
+     */
     this.mockWith = function (dom) {
         var docCreateElementBackup = document.createElement;
 
@@ -262,17 +271,13 @@ window.getJasmineRequireObj().domMocker = function () {
         processElement.call(this, document);
 
         document.createElement = function () {
-            // when this method is spied in the specs there is a conflic because
-            // the spies are set back after the virtual dom is set back
-            // if (!oldDocument) {
-            //     this.createElement = docCreateElementBackup;
-            //     return this.createElement.apply(this, arguments);
-            // } else {
             return processElement.call(this, docCreateElementBackup.apply(this, arguments));
-            //}
         };
     };
 
+    /**
+     * @memberof domMocker
+     */
     this.unMock = function () {
         var method;
 

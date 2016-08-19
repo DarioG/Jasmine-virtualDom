@@ -60,10 +60,6 @@ describe('VirtualDom', function () {
                 jasVirtualDom.install(body);
             });
 
-            // afterEach(function () {
-            //     jasVirtualDom.uninstall();
-            // });
-
             it('should add the html passed in', function () {
                 expect(html.innerHTML).toEqual(body);
             });
