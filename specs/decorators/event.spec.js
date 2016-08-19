@@ -25,7 +25,9 @@ describe('Event', function () {
 
             initRealVirtualDom = function () {
                 var require = window.getJasmineRequireObj();
-                return new require.VirtualDom();
+                return new require.VirtualDom({
+                    domMocker: window.getJasmineRequireObj().domMocker
+                });
             };
 
         beforeEach(function () {

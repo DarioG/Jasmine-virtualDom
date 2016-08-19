@@ -50,6 +50,7 @@ module.exports = function(grunt) {
                 src: [
                     'src/virtualDom.js',
                     'src/decorators/*.js',
+                    'src/services/*.js',
                     'src/boot.js'
                 ],
                 dest: 'output/virtualDom.js',
