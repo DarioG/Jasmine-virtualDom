@@ -5,7 +5,8 @@
   "browser": true,
   "esnext": true,
   "globals": {
-    "HTMLCollection": true
+    "HTMLCollection": true,
+    "HTMLElement": true
   },
   "onevar": true,
   "curly" : true,

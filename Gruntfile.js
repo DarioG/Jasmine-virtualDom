@@ -1,10 +1,10 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
 
         jsdoc: {
-            dist : {
+            dist: {
                 src: ['src/**/*.js'],
                 excludePattern: '',
                 options: {
@@ -16,17 +16,45 @@ module.exports = function (grunt) {
 
         jasmine: {
             components: {
-                src: ['src/**/*.js'],
+                src: [
+                    'src/**/*.js',
+                    '!src/boot.js'
+                ],
                 options: {
                     specs: ['specs/**/*.js'],
-                    keepRunner : false,
-                    display : 'full',
-                    summary : true,
+                    keepRunner: false,
+                    display: 'full',
+                    summary: true,
                     junit: {
                         path: 'log/jasmine'
                     }
                 }
             }
+        },
+
+        jsbeautifier: {
+            modify: {
+                src: [
+                    'src/**/*.js',
+                    'specs/**/*.js'
+                ],
+                options: {
+                    config: '.jsbeautifyrc'
+                }
+            }
+        },
+
+        concat: {
+            options: {},
+            dist: {
+                src: [
+                    'src/virtualDom.js',
+                    'src/decorators/*.js',
+                    'src/services/*.js',
+                    'src/boot.js'
+                ],
+                dest: 'output/virtualDom.js',
+            },
         },
 
         jshint: {
@@ -96,9 +124,15 @@ module.exports = function (grunt) {
     grunt.registerTask('dev', ['watch']);
     grunt.registerTask('doc', ['jsdoc']);
     grunt.registerTask('test', ['jasmine']);
+    grunt.registerTask('compile', ['concat']);
     grunt.registerTask('qa', [
         'jshint',
         'jscs',
         'jasmine'
+    ]);
+    grunt.registerTask('push', [
+        'jsbeautifier',
+        'qa',
+        'compile'
     ]);
 };

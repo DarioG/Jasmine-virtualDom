@@ -1,22 +1,29 @@
 describe('VirtualDom', function () {
 
-    var realDom,
-        oldAPI;
+    var jasVirtualDom,
+        html,
+        domMocker,
+
+        instanciate = function () {
+            var require = window.getJasmineRequireObj();
+            return new require.VirtualDom({
+                domMocker: domMocker
+            });
+        };
 
     beforeEach(function () {
-        realDom = document.getElementsByTagName('html')[0];
+        domMocker = function () {};
 
-        oldAPI = {
-            getElementsByTagName: document.getElementsByTagName,
-            getElementById: document.getElementById,
-            getElementsByClassName: document.getElementsByClassName,
-            querySelector: document.querySelector,
-            querySelectorAll: document.querySelectorAll,
-            addEventListener: document.addEventListener,
-            createElement: document.createElement//,
-            // body: document.body,
-            // head: document.head
+        domMocker.prototype.mockWith = jasmine.createSpy();
+        domMocker.prototype.unMock = jasmine.createSpy();
+
+        jasVirtualDom = instanciate();
+
+        html = {
+            innerHTML: ''
         };
+
+        spyOn(document, 'createElement').and.returnValue(html);
     });
 
     it('should be defined', function () {
@@ -28,15 +35,11 @@ describe('VirtualDom', function () {
         describe('when no body is passed in', function () {
 
             it('should add only a empty head and body', function () {
-                var html;
+                jasVirtualDom.install();
 
-                jasmine.virtualDom.install();
+                expect(html.innerHTML).toEqual('');
 
-                html = document.getElementsByTagName('html')[0];
-
-                expect(html.innerHTML).toEqual('<head></head><body></body>');
-
-                jasmine.virtualDom.uninstall();
+                jasVirtualDom.uninstall();
             });
         });
 
@@ -49,383 +52,66 @@ describe('VirtualDom', function () {
                     '<div id="myContainer" class="container">Hi!</div>' +
                     '<div class="container">Hi2!</div>' +
                     '<div id="selector">' +
-                        '<div id="child1" class="child">Yeeeeepa</div>' +
-                        '<div class="child">Yeeeeepa2</div>' +
+                    '<div id="child1" class="child">Yeeeeepa</div>' +
+                    '<div class="child">Yeeeeepa2</div>' +
                     '</div>' +
-                '</body>';
+                    '</body>';
 
-                jasmine.virtualDom.install(body);
-            });
-
-            afterEach(function () {
-                jasmine.virtualDom.uninstall();
+                jasVirtualDom.install(body);
             });
 
             it('should add the html passed in', function () {
-                var html = document.getElementsByTagName('html')[0];
-
                 expect(html.innerHTML).toEqual(body);
-                expect(realDom.innerHTML).not.toEqual(body);
             });
 
-            describe('when document.createElement has been spied', function () {
-
-                // test to avoid that document break the tests.
-                it('should still work', function () {
-                    spyOn(document, 'createElement');
-
-                    document.createElement();
-
-                    expect(document.createElement).toHaveBeenCalled();
-                });
+            it('should mock the API', function () {
+                expect(domMocker.prototype.mockWith).toHaveBeenCalledWith(html);
             });
 
             describe('trying to installing again', function () {
 
                 it('should throw an exception', function () {
                     expect(function () {
-                        jasmine.virtualDom.install(body);
+                        jasVirtualDom.install(body);
                     }).toThrow('Virtual dom already installed');
                 });
             });
 
-            describe('document.getElementsByTagName', function () {
-
-                describe('if the elements exist in the virtual Dom', function () {
-
-                    it('should return it', function () {
-                        var elements = document.getElementsByTagName('div'),
-                            div = elements[0];
-
-                        expect(div.tagName).toBe('DIV');
-                        expect(div.innerText).toBe('Hi!');
-                    });
-
-                    it('should return always the same collection', function () {
-                        var collection = document.getElementsByClassName('child');
-
-                        expect(collection).toBe(document.getElementsByClassName('child'));
-                    });
-                });
-
-                describe('otherwise', function () {
-
-                    it('should return empty array', function () {
-                        var result = document.getElementsByTagName('li');
-
-                        expect(result.length).toEqual(0);
-                    });
-                });
-            });
-
-            describe('document.getElementById', function () {
-
-                describe('if the element exists in the virtual Dom', function () {
-
-                    it('should return it', function () {
-                        var div = document.getElementById('myContainer');
-
-                        expect(div.tagName).toBe('DIV');
-                        expect(div.innerText).toBe('Hi!');
-                    });
-                });
-            });
-
-            describe('document.getElementsByClassName', function () {
-
-                describe('if the elements exist in the virtual Dom', function () {
-
-                    it('should return it', function () {
-                        var divs = document.getElementsByClassName('container');
-
-                        expect(divs.length).toBe(2);
-                        expect(divs[0].innerText).toBe('Hi!');
-                        expect(divs[0].tagName).toBe('DIV');
-                        expect(divs[1].innerText).toBe('Hi2!');
-                        expect(divs[1].tagName).toBe('DIV');
-                    });
-                });
-            });
-
-            describe('querySelector', function () {
-
-                describe('it the element exists in the virtual Dom', function () {
-
-                    it('should return it', function () {
-                        var div = document.querySelector('#selector .child');
-
-                        expect(div.innerText).toBe('Yeeeeepa');
-                        expect(div.tagName).toBe('DIV');
-                    });
-                });
-
-                describe('otherwise', function () {
-
-                    it('should return null', function () {
-                        var div = document.querySelector('#selector .nochild');
-
-                        expect(div).toBe(null);
-                    });
-                });
-            });
-
-            describe('querySelectorAll', function () {
-
-                describe('it the elements exist in the virtual Dom', function () {
-
-                    it('should return it', function () {
-                        var divs = document.querySelectorAll('#selector .child');
-
-                        expect(divs.length).toBe(2);
-                        expect(divs[0].innerText).toBe('Yeeeeepa');
-                        expect(divs[0].tagName).toBe('DIV');
-                        expect(divs[1].innerText).toBe('Yeeeeepa2');
-                        expect(divs[1].tagName).toBe('DIV');
-                    });
-                });
-            });
-
-            // describe('document.body', function () {
-
-            //     it('should return the virtual body', function () {
-            //         var bodyTag = document.getElementsByTagName('body')[0];
-
-            //         expect(bodyTag).toBe(document.body);
-            //     });
-            // });
-
-            // describe('document.head', function () {
-
-            //     it('should return the virtual body', function () {
-            //         var headTag = document.getElementsByTagName('head')[0];
-
-            //         expect(headTag).toBe(document.head);
-            //     });
-            // });
-
             describe('uninstalling', function () {
 
-                it('should return the real dom', function () {
-                    var html;
+                it('should relase the mocks', function () {
+                    jasVirtualDom.uninstall();
 
-                    jasmine.virtualDom.uninstall();
-
-                    html = document.getElementsByTagName('html')[0];
-
-                    expect(html.innerHTML).not.toEqual(body);
-                    expect(html).toBe(realDom);
-
-                    expect(oldAPI.getElementById).toBe(document.getElementById);
-                    expect(oldAPI.getElementsByTagName).toBe(document.getElementsByTagName);
-                    expect(oldAPI.getElementsByClassName).toBe(document.getElementsByClassName);
-                    expect(oldAPI.querySelector).toBe(document.querySelector);
-                    expect(oldAPI.querySelectorAll).toBe(document.querySelectorAll);
-                    expect(oldAPI.addEventListener).toBe(document.addEventListener);
-                    // expect(oldAPI.body).toBe(document.body);
-                    // expect(oldAPI.head).toBe(document.head);
-                });
-            });
-
-            describe('trigger(element, event)', function () {
-
-                it('should trigger all the event listeners', function () {
-                    var htmlEl = document.getElementsByTagName('html')[0],
-                        container = document.getElementById('myContainer'),
-                        htmlCallback = jasmine.createSpy(),
-                        clickCallback = jasmine.createSpy(),
-                        clickCallback2 = jasmine.createSpy(),
-                        blurCallback = jasmine.createSpy(),
-                        customCallback = jasmine.createSpy(),
-                        focus = jasmine.createSpy();
-
-                    htmlEl.addEventListener('click', htmlCallback);
-                    container.addEventListener('click', clickCallback);
-                    container.addEventListener('click', clickCallback2);
-                    container.addEventListener('blur', blurCallback);
-                    container.addEventListener('focus', focus);
-                    container.addEventListener('custom', customCallback);
-
-                    jasmine.virtualDom.trigger(htmlEl, 'click');
-
-                    expect(htmlCallback).toHaveBeenCalled();
-
-                    jasmine.virtualDom.trigger(container, 'click');
-
-                    expect(clickCallback).toHaveBeenCalled();
-                    expect(clickCallback2).toHaveBeenCalled();
-
-                    jasmine.virtualDom.trigger(container, 'blur');
-
-                    expect(blurCallback).toHaveBeenCalled();
-
-                    jasmine.virtualDom.trigger(container, 'focus');
-
-                    expect(focus).toHaveBeenCalled();
-
-                    jasmine.virtualDom.trigger(container, 'custom');
-
-                    expect(customCallback).toHaveBeenCalled();
+                    expect(domMocker.prototype.unMock).toHaveBeenCalled();
                 });
 
-                it('should trigger also events attached to the document', function () {
-                    var callback = jasmine.createSpy();
+                describe('trying to installing again', function () {
 
-                    document.addEventListener('keyup', callback);
+                    it('should not throw an exception', function () {
+                        jasVirtualDom.uninstall();
 
-                    jasmine.virtualDom.trigger(document, 'keyup');
-
-                    expect(callback).toHaveBeenCalled();
-                });
-
-                describe('when we get the same element twice from the dom', function () {
-
-                    it('should trigger the events', function () {
-                        var el = document.getElementById('child1'),
-                            callback = jasmine.createSpy();
-
-                        el.addEventListener('click', callback);
-
-                        jasmine.virtualDom.trigger(document.getElementById('child1'), 'click');
-
-                        expect(callback).toHaveBeenCalled();
-                    });
-                });
-
-                it('should trigger events in elements created with the document api', function () {
-                    var container = document.getElementById('myContainer'),
-                        callback = jasmine.createSpy(),
-                        newEl = document.createElement('div');
-
-                    newEl.addEventListener('click', callback);
-
-                    container.appendChild(newEl);
-
-                    jasmine.virtualDom.trigger(newEl, 'click');
-
-                    expect(callback).toHaveBeenCalled();
-                });
-
-                it('should work with event delegation', function () {
-                    var container = document.getElementById('selector'),
-                        child = document.getElementsByClassName('child')[0],
-                        event,
-                        clickCallback =  function (e) {
-                            event = e;
-                        };
-
-                    container.addEventListener('click', clickCallback);
-                    jasmine.virtualDom.trigger(child, 'click');
-
-                    expect(event.target.id).toBe(child.id);
-                    expect(event.srcElement.id).toBe(child.id);
-                    expect(event.toElement.id).toBe(child.id);
-                    expect(event.currentTarget).toBe(container);
-                });
-
-                describe('when at least one of the listeners is preventDefault', function () {
-
-                    it('should return false', function () {
-                        var container = document.getElementById('myContainer'),
-                            result;
-
-                        container.addEventListener('custom', function (e) {
-                            e.preventDefault();
-                        });
-
-                        result = jasmine.virtualDom.trigger(container, 'custom');
-
-                        expect(result).toBe(false);
-                    });
-                });
-
-                describe('otherwise', function () {
-
-                    it('should return true', function () {
-                        var container = document.getElementById('myContainer'),
-                            result;
-
-                        container.addEventListener('custom', function () {});
-
-                        result = jasmine.virtualDom.trigger(container, 'custom');
-
-                        expect(result).toBe(true);
-                    });
-                });
-
-                it('should disable real behaviour of elements', function () {
-                    var link,
-                        event = new Event('click', {
-                            bubbles: true,
-                            cancelable: true
-                        });
-
-                    jasmine.virtualDom.resetDom('<a id="link" href="" />');
-
-                    spyOn(window, 'Event').and.returnValue(event);
-
-                    link = document.getElementById('link');
-
-                    // we need to avoid that the page reload while writing the test
-                    link.addEventListener('click', function (e) {
-                        e.preventDefault();
-                    });
-                    //
-
-                    jasmine.virtualDom.trigger(link, 'click');
-
-                    // this method is spied in the trigger method
-                    expect(event.preventDefault.calls.count()).toBe(2);
-
-                    // To check that the temporary event listener is removed
-                    link.dispatchEvent(event);
-                    expect(event.preventDefault.calls.count()).toBe(3);
-                });
-
-                describe('when passing in some config', function () {
-
-                    it('should add it to the event object', function () {
-                        var config,
-                            container = document.getElementById('myContainer'),
-                            callback = function (e) {
-                                config = e;
-                            };
-
-                        container.addEventListener('click', callback);
-                        jasmine.virtualDom.trigger(container, 'click', {
-                            config1: 'config1',
-                            config2: 'config2',
-                            config3: 'config3',
-                            config4: 'config4'
-                        });
-
-                        expect(config.config1).toEqual('config1');
-                        expect(config.config2).toEqual('config2');
-                        expect(config.config3).toEqual('config3');
-                        expect(config.config4).toEqual('config4');
+                        expect(function () {
+                            jasVirtualDom.install(body);
+                        }).not.toThrow();
                     });
                 });
             });
 
             describe('resetDom(body)', function () {
 
-                it('should clean the previous dom', function () {
-                    var container;
+                beforeEach(function () {
+                    spyOn(jasVirtualDom, 'install');
+                    spyOn(jasVirtualDom, 'uninstall');
 
-                    jasmine.virtualDom.resetDom();
-                    container = document.getElementById('myContainer');
+                    jasVirtualDom.resetDom();
+                });
 
-                    expect(container).toBeNull();
+                it('should uninstall', function () {
+                    expect(jasVirtualDom.uninstall).toHaveBeenCalled();
                 });
 
                 it('should add the new html', function () {
-                    var container;
-
-                    jasmine.virtualDom.resetDom('<head></head><body>' +
-                        '<div id="myNewContainer" class="container">Hi!</div>' +
-                    '</body>');
-                    container = document.getElementById('myNewContainer');
-
-                    expect(container).toBeDefined();
+                    expect(jasVirtualDom.install).toHaveBeenCalled();
                 });
             });
         });
