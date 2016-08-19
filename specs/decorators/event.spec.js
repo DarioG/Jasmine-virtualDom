@@ -47,6 +47,18 @@ describe('Event', function () {
         afterEach(function () {
             virtualDom.uninstall();
         });
+
+        it('should decorate the original virtualDom', function () {
+            var original = {
+                    method: function () {},
+                    method2: function () {}
+                },
+                decorated = instanciate(original);
+
+            expect(decorated.method).toBe(original.method);
+            expect(decorated.method2).toBe(original.method2);
+        });
+
         describe('trigger(element, event)', function () {
 
             it('should trigger all the event listeners', function () {

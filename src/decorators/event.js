@@ -75,7 +75,7 @@ window.getJasmineRequireObj().VirtualDomEvent = function (virtualDom) {
             });
         };
 
-    merge.call(this, virtualDom);
+    merge.call(this, this, virtualDom);
 
     /**
      * Trigger any kind of event from any element, native or custom events
