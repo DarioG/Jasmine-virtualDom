@@ -1,3 +1,8 @@
+/**
+ * Service to mock the document API
+ *
+ * @constructor domMocker
+ */
 window.getJasmineRequireObj().domMocker = function () {
     var oldDocument,
 
@@ -66,6 +71,10 @@ window.getJasmineRequireObj().domMocker = function () {
             return elements;
         };
 
+    /**
+     * @param  {HTMLElement} dom Virtual dom
+     * @memberof domMocker
+     */
     this.mockWith = function (dom) {
         var docCreateElementBackup = document.createElement;
 
@@ -116,6 +125,9 @@ window.getJasmineRequireObj().domMocker = function () {
         };
     };
 
+    /**
+     * @memberof domMocker
+     */
     this.unMock = function () {
         var method;
 
