@@ -4,3 +4,4 @@ filter:
         - "log"
         - "libraries/"
         - "*.json"
+        - "output/"
