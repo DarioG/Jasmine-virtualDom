@@ -1,8 +1,8 @@
 # Jasmine-virtualDom
 A tool to create a virtual dom to use in your specs
 
-[![Build Status](https://travis-ci.org/DarioG/Jasmine-virtualDom.svg?branch=master)](https://travis-ci.org/DarioG/Jasmine-virtualDom)
-[![Build Status](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/badges/build.png?b=master)](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/build-status/master)
+[![Travis Build Status](https://travis-ci.org/DarioG/Jasmine-virtualDom.svg?branch=master)](https://travis-ci.org/DarioG/Jasmine-virtualDom)
+[![Scrutinizer Build Status](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/badges/build.png?b=master)](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/?branch=master)
 
 ##How to use it
