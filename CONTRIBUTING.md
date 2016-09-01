@@ -66,7 +66,6 @@ If you want us to review and, potentially, merge your PR both should be green
 ### Some tips when write code for Jasmine virtual dom
 
 * Do not change the public interface. You can add new methods to it, but changing the existing ones could break the projects that are already using it.
-* Be environment agnostic - server-side developers are just as important as browser developers
 * Be browser agnostic down to IE9.
 * Write specs - Jasmine virtual dom is a testing framework; don't add functionality without test-driving it
 * Write code in the defined style.
