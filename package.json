@@ -21,7 +21,7 @@
   },
   "config": {
     "ghooks": {
-      "pre-push": "grunt qa"
+      "pre-push": "grunt push"
     }
   }
 }

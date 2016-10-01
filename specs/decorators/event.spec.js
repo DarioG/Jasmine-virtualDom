@@ -1,4 +1,4 @@
-describe('Event', function () {
+describe('VirtualDomEvent', function () {
 
     var instanciate = function (virtualDom) {
         var require = window.getJasmineRequireObj();
