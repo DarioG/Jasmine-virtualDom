@@ -11,11 +11,15 @@ describe('Event', function () {
     });
 
     it('should decorate the base virtual dom', function () {
-        var virtualDom = {};
-
-        virtualDom = instanciate(virtualDom);
+        var original = {
+                method: function () { },
+                method2: function () { }
+            },
+            virtualDom = instanciate(original);
 
         expect(virtualDom.trigger).toBeDefined();
+        expect(virtualDom.method).toBe(original.method);
+        expect(virtualDom.method2).toBe(original.method2);
     });
 
     describe('after installing', function () {
@@ -48,17 +52,6 @@ describe('Event', function () {
 
         afterEach(function () {
             virtualDom.uninstall();
-        });
-
-        it('should decorate the original virtualDom', function () {
-            var original = {
-                    method: function () {},
-                    method2: function () {}
-                },
-                decorated = instanciate(original);
-
-            expect(decorated.method).toBe(original.method);
-            expect(decorated.method2).toBe(original.method2);
         });
 
         describe('trigger(element, event)', function () {
@@ -141,7 +134,7 @@ describe('Event', function () {
                     var container = document.getElementById('myContainer'),
                         result;
 
-                    container.addEventListener('custom', function () {});
+                    container.addEventListener('custom', function () { });
 
                     result = decoratedVirtualDom.trigger(container, 'custom');
 
