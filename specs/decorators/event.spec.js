@@ -12,8 +12,8 @@ describe('VirtualDomEvent', function () {
 
     it('should decorate the base virtual dom', function () {
         var original = {
-                method: function () { },
-                method2: function () { }
+                method: function () {},
+                method2: function () {}
             },
             virtualDom = instanciate(original);
 
@@ -134,7 +134,7 @@ describe('VirtualDomEvent', function () {
                     var container = document.getElementById('myContainer'),
                         result;
 
-                    container.addEventListener('custom', function () { });
+                    container.addEventListener('custom', function () {});
 
                     result = decoratedVirtualDom.trigger(container, 'custom');
 
