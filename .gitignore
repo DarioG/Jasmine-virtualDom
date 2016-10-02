@@ -11,3 +11,5 @@ npm-debug.log
 typings.json
 *.sublime-*
 .vscode/
+typings/
+jsconfig.json
