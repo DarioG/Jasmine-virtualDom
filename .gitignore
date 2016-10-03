@@ -8,3 +8,8 @@ node_modules/
 *.sublime-workspace
 *.sublime-project
 npm-debug.log
+typings.json
+*.sublime-*
+.vscode/
+typings/
+jsconfig.json
