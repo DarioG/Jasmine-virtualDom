@@ -5,7 +5,7 @@ A tool to create a virtual dom to use in your specs
 [![Scrutinizer Build Status](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/badges/build.png?b=master)](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/DarioG/Jasmine-virtualDom/?branch=master)
 
-##How to use it
+## How to use it
 
 1. Add the file after boot.js of jasmine
 
@@ -28,7 +28,7 @@ A tool to create a virtual dom to use in your specs
 ```
 3. use the dom API as usual
 
-####Examples
+#### Examples
     
 Here you have a summary, if you want more details, generate the docs.
 
@@ -105,7 +105,7 @@ jasmine.virtualDom.trigger(el, event);
 ```
 this will return a boolean, so when it is false means that the default behaviour was stopped, true otherwise
 
-#####Examples
+##### Examples
 
 ```javascript
 element.addEventListener('click', function (e) {
@@ -127,12 +127,12 @@ var result = jasmine.virtualDom.trigger(element, 'click');
 result === true // This assertion is true
 ```
 
-##Generate docs
+## Generate docs
 
     1. npm install
     2. grunt doc
 
-##Support
+## Support
 
 Chrome, Safari, FF, IE > 8.
 
